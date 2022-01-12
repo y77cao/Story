@@ -44,11 +44,11 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
     }
 
     constructor(
-        address _openSeaProxyRegistryAddress,
+        // address _openSeaProxyRegistryAddress,
         uint256 _maxMintNumber
     ) ERC721("The story", "STORY")
       Pausable() {
-        openSeaProxyRegistryAddress = _openSeaProxyRegistryAddress;
+        // openSeaProxyRegistryAddress = _openSeaProxyRegistryAddress;
         maxMintNumber = _maxMintNumber;
     }
 
@@ -85,7 +85,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         return tokenCounter.current();
     }
 
-    function getMintPrice(uint256 numberOfChars) external pure view returns (uint256) {
+    function getMintPrice(uint256 numberOfChars) external view returns (uint256) {
         return SafeMath.mul(numberOfChars, PRICE_PER_CHAR);
     }
 
@@ -172,15 +172,15 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
     {
         // Get a reference to OpenSea's proxy registry contract by instantiating
         // the contract using the already existing address.
-        ProxyRegistry proxyRegistry = ProxyRegistry(
-            openSeaProxyRegistryAddress
-        );
-        if (
-            isOpenSeaProxyActive &&
-            address(proxyRegistry.proxies(owner)) == operator
-        ) {
-            return true;
-        }
+        // ProxyRegistry proxyRegistry = ProxyRegistry(
+        //     openSeaProxyRegistryAddress
+        // );
+        // if (
+        //     isOpenSeaProxyActive &&
+        //     address(proxyRegistry.proxies(owner)) == operator
+        // ) {
+        //     return true;
+        // }
 
         return super.isApprovedForAll(owner, operator);
     }

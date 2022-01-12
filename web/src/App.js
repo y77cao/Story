@@ -1,57 +1,160 @@
-import './App.css';
-import { useState } from 'react';
-import { ethers } from 'ethers'
-import Greeter from 'contracts/Greeter.sol/Greeter.json'
-
-// Update with the contract address logged out to the CLI when it was deployed 
-const greeterAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { connect } from "./redux/blockchainSlice";
+import * as s from "./styles/globalStyles";
+import styled from "styled-components";
 
 function App() {
-  // store greeting in local state
-  const [greeting, setGreetingValue] = useState()
+  const dispatch = useDispatch();
+  const blockchain = useSelector((state) => state.blockchain);
+  // const [claimingNft, setClaimingNft] = useState(false);
+  // const [feedback, setFeedback] = useState(`Click buy to mint your NFT.`);
+  // const [mintAmount, setMintAmount] = useState(1);
 
-  // request access to the user's MetaMask account
-  async function requestAccount() {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-  }
+  // const claimNFTs = () => {
+  //   setClaimingNft(true);
+  //   blockchain.smartContract.methods
+  //     .mint(mintAmount)
+  //     .send({
+  //       gasLimit: String(totalGasLimit),
+  //       to: CONFIG.CONTRACT_ADDRESS,
+  //       from: blockchain.account,
+  //       value: totalCostWei,
+  //     })
+  //     .once("error", (err) => {
+  //       console.log(err);
+  //       setFeedback("Sorry, something went wrong please try again later.");
+  //       setClaimingNft(false);
+  //     })
+  //     .then((receipt) => {
+  //       console.log(receipt);
+  //       setFeedback(
+  //         `WOW, the ${CONFIG.NFT_NAME} is yours! go visit Opensea.io to view it.`
+  //       );
+  //       setClaimingNft(false);
+  //       dispatch(fetchData(blockchain.account));
+  //     });
+  // };
 
-  // call the smart contract, read the current greeting value
-  async function fetchGreeting() {
-    if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, provider)
-      try {
-        const data = await contract.greet()
-        console.log('data: ', data)
-      } catch (err) {
-        console.log("Error: ", err)
-      }
-    }    
-  }
+  // const getData = () => {
+  //   if (blockchain.account !== "" && blockchain.contract !== null) {
+  //     dispatch(fetchData(blockchain.account));
+  //   }
+  // };
 
-  // call the smart contract, send an update
-  async function setGreeting() {
-    if (!greeting) return
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount()
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner()
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, signer)
-      const transaction = await contract.setGreeting(greeting)
-      await transaction.wait()
-      fetchGreeting()
-    }
-  }
+  // useEffect(() => {
+  //   getConfig();
+  // }, []);
+
+  // useEffect(() => {
+  //   getData();
+  // }, [blockchain.account]);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button onClick={fetchGreeting}>Fetch Greeting</button>
-        <button onClick={setGreeting}>Set Greeting</button>
-        <input onChange={e => setGreetingValue(e.target.value)} placeholder="Set greeting" />
-      </header>
-    </div>
+    <s.Screen>
+      <s.Container
+        flex={1}
+        ai={"center"}
+        style={{ padding: 24, backgroundColor: "var(--primary)" }}
+      >
+        <StyledButton
+                      onClick={(e) => {
+                        e.preventDefault();
+                        dispatch(connect());
+                        // getData();
+                      }}
+                    >
+                      CONNECT WALLET
+        </StyledButton>
+      </s.Container>
+    </s.Screen>
   );
 }
+
+export const StyledButton = styled.button`
+  padding: 10px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--secondary);
+  padding: 10px;
+  font-weight: bold;
+  color: var(--secondary-text);
+  width: 100px;
+  cursor: pointer;
+  box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
+  -webkit-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
+  -moz-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
+  :active {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+  }
+`;
+
+export const StyledRoundButton = styled.button`
+  padding: 10px;
+  border-radius: 100%;
+  border: none;
+  background-color: var(--primary);
+  padding: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  color: var(--primary-text);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 0px -2px rgba(250, 250, 250, 0.3);
+  -webkit-box-shadow: 0px 4px 0px -2px rgba(250, 250, 250, 0.3);
+  -moz-box-shadow: 0px 4px 0px -2px rgba(250, 250, 250, 0.3);
+  :active {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+  }
+`;
+
+export const ResponsiveWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: stretched;
+  align-items: stretched;
+  width: 100%;
+  @media (min-width: 767px) {
+    flex-direction: row;
+  }
+`;
+
+export const StyledLogo = styled.img`
+  width: 200px;
+  @media (min-width: 767px) {
+    width: 300px;
+  }
+  transition: width 0.5s;
+  transition: height 0.5s;
+`;
+
+export const StyledImg = styled.img`
+  box-shadow: 0px 5px 11px 2px rgba(0, 0, 0, 0.7);
+  border: 4px dashed var(--secondary);
+  background-color: var(--accent);
+  border-radius: 100%;
+  width: 200px;
+  @media (min-width: 900px) {
+    width: 250px;
+  }
+  @media (min-width: 1000px) {
+    width: 300px;
+  }
+  transition: width 0.5s;
+`;
+
+export const StyledLink = styled.a`
+  color: var(--secondary);
+  text-decoration: none;
+`;
 
 export default App;
