@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "./redux/blockchainSlice";
+import { updateContent } from "./redux/appSlice";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
+import MintConfirmation from "./components/MintConfirmation";
 
 function App() {
   const dispatch = useDispatch();
-  const blockchain = useSelector((state) => state.blockchain);
+  const blockchain = useSelector(state => state.blockchain);
+  const app = useSelector(state => state.app);
+  const [input, setInput] = useState("");
+  const [mintConfirmationVisible, setMintConfirmationVisible] = useState(false);
+  const [displayedError, setDisplayedError] = useState("");
+
+  useEffect(() => {
+    setDisplayedError(blockchain.errorMsg);
+  }, [blockchain.errorMsg]);
+
+  useEffect(() => {
+    setDisplayedError(app.errorMsg);
+  }, [app.errorMsg]);
   // const [claimingNft, setClaimingNft] = useState(false);
   // const [feedback, setFeedback] = useState(`Click buy to mint your NFT.`);
   // const [mintAmount, setMintAmount] = useState(1);
@@ -50,6 +64,14 @@ function App() {
   //   getData();
   // }, [blockchain.account]);
 
+  const toggleMintConfirmationVisible = () => {
+    setMintConfirmationVisible(!mintConfirmationVisible);
+  };
+
+  const estimatedMintCost = () => {
+    return input.length * 0.001;
+  };
+
   return (
     <s.Screen>
       <s.Container
@@ -58,14 +80,35 @@ function App() {
         style={{ padding: 24, backgroundColor: "var(--primary)" }}
       >
         <StyledButton
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatch(connect());
-                        // getData();
-                      }}
-                    >
-                      CONNECT WALLET
+          onClick={e => {
+            e.preventDefault();
+            dispatch(connect());
+            // getData();
+          }}
+        >
+          {blockchain.account ? blockchain.account : "CONNECT WALLET"}
         </StyledButton>
+        <input
+          type="textarea"
+          name="textValue"
+          onChange={e => setInput(e.target.value)}
+        />
+        <div>Estimated mint cost: {estimatedMintCost()} ether. </div>
+        <StyledButton
+          onClick={e => {
+            e.preventDefault();
+            toggleMintConfirmationVisible();
+            dispatch(updateContent({ content: input }));
+          }}
+        >
+          MINT
+        </StyledButton>
+        {mintConfirmationVisible ? (
+          <MintConfirmation
+            toggleMintConfirmationVisible={toggleMintConfirmationVisible}
+          />
+        ) : null}
+        {displayedError ? <div>{displayedError}</div> : null}
       </s.Container>
     </s.Screen>
   );
