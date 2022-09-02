@@ -135,6 +135,9 @@ export const mint = contentLength => async (dispatch, getState) => {
       value: ethers.utils.parseEther(`${mintCost}`)
     });
     await txn.wait();
+    dispatch(mintSuccess( {
+        transaction: 
+    }))
   } catch (err) {
     dispatch(mintFailed(err.message));
   }

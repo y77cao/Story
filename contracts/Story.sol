@@ -15,9 +15,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/PullPayment.sol";
 
-contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPayment {
+contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     using Counters for Counters.Counter;
     using Strings for uint256;
 
@@ -27,12 +26,22 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
     address private openSeaProxyRegistryAddress;
     bool private isOpenSeaProxyActive = true;
 
-    uint256 public constant PRICE_PER_CHAR = 0.001 ether;
-    uint256 private maxMintNumber;
+    uint256 public constant pricePerChar = 0.001 ether;
+    uint256 public constant maxCharsPerMint = 280
+    uint256 public constant maxCharsPerTitle = 20
+    uint256 public constant numberOfParagraphRequiredToStartStory = 10;
 
-    uint256[] mintedTokens;
-    mapping(uint256 => address) public tokenIdToAddress;
-    mapping(address => uint256) public addressToDividends;
+    struct TokenMetadata {
+      address creator;
+      bool isBeginning;
+      bytes32 text;
+      uint256 parentTokenId;
+      uint256 timestamp;
+      uint256 amount;
+      uint256 withdrawn;
+    }
+
+    TokenMetadata[] mintedTokens;
 
     // ============ ACCESS CONTROL/SANITY MODIFIERS ============
     modifier isCorrectPayment(uint256 price, uint256 numberOfChars) {
@@ -43,36 +52,55 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         _;
     }
 
+    modifier tokenExists(uint256 tokenId) {
+      require(_exists(tokenId), "Query for nonexistent token");
+    }
+
     constructor(
         // address _openSeaProxyRegistryAddress,
-        uint256 _maxMintNumber
-    ) ERC721("The story", "STORY")
+    ) ERC721("Story", "STORY")
       Pausable() {
         // openSeaProxyRegistryAddress = _openSeaProxyRegistryAddress;
-        maxMintNumber = _maxMintNumber;
     }
 
     // ============ PUBLIC FUNCTIONS ============
 
-    function mint(uint256 numberOfChars)
+    function mint(uint256 numberOfChars, bytes32 text, bool isBeginning, uint256 parentId)
         external
         payable
         nonReentrant
-        isCorrectPayment(PRICE_PER_CHAR, numberOfChars)
+        isCorrectPayment(pricePerChar, numberOfChars)
         whenNotPaused
     {
+        require(numberOfChars <= maxCharsPerMint, 'number of characters exceeds limit');
         uint256 nextId = nextTokenId();
-        mintedTokens.push(nextId);
-        tokenIdToAddress[nextId] = msg.sender;
-        _sendDividends(msg.value);
+        if (nextId !== 1 && isBeginning) {
+            // TODO require owned greater than numberOfParagraphRequiredToStartStory
+        }
+        // validate title if beginning
+        uint parentTokenId = isBeginning ? nextId : parentId;
+        mintedTokens.push(TokenMetadata({creator: msg.sender, 
+                                                 isBeginning: isBeginning,
+                                                 text: text,
+                                                 parentTokenId: parentTokenId,
+                                                 timestamp: block.timestamp, 
+                                                 amount: msg.value, 
+                                                 withdrawn: 0}));
         _safeMint(msg.sender, nextId);
+
+        return nextId;
     }
 
-    function withdrawDividends() 
-        external 
-        whenNotPaused 
-        nonReentrant {
-        withdrawPayments(payable(msg.sender));
+    function withdraw(uint256 tokenId, uint256 amount) public {
+      uint256 balance = balanceOf(tokenId);
+      require(balance >= amount, "Insufficient balance");
+      require(ownerOf(tokenId) == msg.sender, "Unauthorized attempt to withdraw");
+
+      TokenMetadata storage metadata = _tokenMetadata[tokenId];
+      metadata.withdrawn += amount;
+
+      mintedTokens[tokenId] = metadata;
+      payable(msg.sender).transfer(amount);
     }
 
     // ============ PUBLIC READ-ONLY FUNCTIONS ============
@@ -86,11 +114,43 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
     }
 
     function getMintPrice(uint256 numberOfChars) external view returns (uint256) {
-        return SafeMath.mul(numberOfChars, PRICE_PER_CHAR);
+        return SafeMath.mul(numberOfChars, pricePerChar);
     }
 
-    function getDividendBalance() external view returns (uint256) {
-        return payments(msg.sender);
+    function balanceOf(uint256 tokenId) public view tokenExists returns (uint256) {
+      uint256 balance = 0;
+      TokenMetadata memory metadata = mintedTokens[tokenId - 1];
+      for (uint256 i = tokenId; i < mintedTokens.length; i++) {
+        balance += (mintedTokens[i].amount / i);
+      }
+
+      return balance - metadata.withdrawn;
+    }
+
+    function getTotalBalance() public view returns (uint256) {
+      uint256 balance = 0;
+
+      for (uint256 i = 0 ;i < mintedTokenss.length;i++) {
+        balance += mintedTokens[i].amount;
+      }
+
+      return balance;
+    }
+
+    function getTotalMintedCount() public view returns (uint256) {
+      return mintedTokens.length;
+    }
+
+    function storyUntil(uint256 tokenId) public view tokenExists returns (string memory) {
+      // TODO
+    }
+
+    function creatorAt(uint256 tokenId) public view tokenExists returns (address) {
+      return mintedTokens[tokenId - 1].creator;
+    }
+
+    function timestampAt(uint256 tokenId) public view tokenExists returns (uint256) {
+      return mintedTokens[tokenId - 1].timestamp;
     }
 
     // ============ OWNER-ONLY ADMIN FUNCTIONS ============
@@ -99,23 +159,11 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         baseURI = _baseURI;
     }
 
-    // function to disable gasless listings for security in case
-    // opensea ever shuts down or is compromised
     function setIsOpenSeaProxyActive(bool _isOpenSeaProxyActive)
         external
         onlyOwner
     {
         isOpenSeaProxyActive = _isOpenSeaProxyActive;
-    }
-
-    function ownerWithdraw() public onlyOwner {
-        uint256 balance = address(this).balance;
-        payable(msg.sender).transfer(balance);
-    }
-
-    function ownerWithdrawTokens(IERC20 token) public onlyOwner {
-        uint256 balance = token.balanceOf(address(this));
-        token.transfer(msg.sender, balance);
     }
 
     function pause() external onlyOwner {
@@ -133,20 +181,6 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         return tokenCounter.current();
     }
 
-    function _sendDividends(uint256 total) private {
-        require(mintedTokens.length > 0, "Shares must be greater than zero");
-
-        uint256 dividendPerToken = SafeMath.div(total, mintedTokens.length);
-
-        for (uint256 i = 0; i < mintedTokens.length; i++) {
-            address addressToSend = tokenIdToAddress[mintedTokens[i]];
-            _transferDividends(addressToSend, dividendPerToken);
-        }
-    }
-
-    function _transferDividends(address dest, uint256 amount) private {
-        _asyncTransfer(dest, amount);
-    }
     // ============ FUNCTION OVERRIDES ============
 
     function supportsInterface(bytes4 interfaceId)
@@ -193,10 +227,9 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         view
         virtual
         override
+        tokenExists
         returns (string memory)
     {
-        require(_exists(tokenId), "Nonexistent token");
-
         return
             string(abi.encodePacked(baseURI, "/", tokenId.toString(), ".json"));
     }
@@ -208,11 +241,10 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, PullPaym
         external
         view
         override
+        tokenExists
         returns (address receiver, uint256 royaltyAmount)
     {
-        require(_exists(tokenId), "Nonexistent token");
-
-        return (address(this), SafeMath.div(SafeMath.mul(salePrice, 5), 100));
+        return (address(this), SafeMath.div(SafeMath.mul(salePrice, 3), 100));
     }
 }
 
