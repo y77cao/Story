@@ -11,24 +11,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
-    using Counters for Counters.Counter;
     using Strings for uint256;
-
-    Counters.Counter private tokenCounter;
 
     string private baseURI;
     address private openSeaProxyRegistryAddress;
     bool private isOpenSeaProxyActive = true;
 
-    uint256 public constant pricePerChar = 0.001 ether;
-    uint256 public constant maxCharsPerMint = 280
-    uint256 public constant maxCharsPerTitle = 20
+    uint256 public constant pricePerChar = 0.0003 ether;
+    uint256 public constant maxCharsPerMint = 280;
+    uint256 public constant maxCharsPerTitle = 20;
     uint256 public constant numberOfParagraphRequiredToStartStory = 10;
 
     struct TokenMetadata {
@@ -54,6 +50,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
 
     modifier tokenExists(uint256 tokenId) {
       require(_exists(tokenId), "Query for nonexistent token");
+      _;
     }
 
     constructor(
@@ -71,10 +68,11 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
         nonReentrant
         isCorrectPayment(pricePerChar, numberOfChars)
         whenNotPaused
+        returns (uint256)
     {
         require(numberOfChars <= maxCharsPerMint, 'number of characters exceeds limit');
-        uint256 nextId = nextTokenId();
-        if (nextId !== 1 && isBeginning) {
+        uint256 nextId = mintedTokens.length;
+        if (nextId != 0 && isBeginning) {
             // TODO require owned greater than numberOfParagraphRequiredToStartStory
         }
         // validate title if beginning
@@ -96,7 +94,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
       require(balance >= amount, "Insufficient balance");
       require(ownerOf(tokenId) == msg.sender, "Unauthorized attempt to withdraw");
 
-      TokenMetadata storage metadata = _tokenMetadata[tokenId];
+      TokenMetadata storage metadata = mintedTokens[tokenId];
       metadata.withdrawn += amount;
 
       mintedTokens[tokenId] = metadata;
@@ -110,18 +108,18 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     }
 
     function getLastTokenId() external view returns (uint256) {
-        return tokenCounter.current();
+        return mintedTokens.length - 1;
     }
 
-    function getMintPrice(uint256 numberOfChars) external view returns (uint256) {
+    function getMintPrice(uint256 numberOfChars) external pure returns (uint256) {
         return SafeMath.mul(numberOfChars, pricePerChar);
     }
 
-    function balanceOf(uint256 tokenId) public view tokenExists returns (uint256) {
+    function balanceOf(uint256 tokenId) public view tokenExists(tokenId) returns (uint256) {
       uint256 balance = 0;
-      TokenMetadata memory metadata = mintedTokens[tokenId - 1];
+      TokenMetadata memory metadata = mintedTokens[tokenId];
       for (uint256 i = tokenId; i < mintedTokens.length; i++) {
-        balance += (mintedTokens[i].amount / i);
+        balance += (mintedTokens[i].amount / (i+1));
       }
 
       return balance - metadata.withdrawn;
@@ -130,7 +128,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     function getTotalBalance() public view returns (uint256) {
       uint256 balance = 0;
 
-      for (uint256 i = 0 ;i < mintedTokenss.length;i++) {
+      for (uint256 i = 0; i < mintedTokens.length; i++) {
         balance += mintedTokens[i].amount;
       }
 
@@ -141,15 +139,15 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
       return mintedTokens.length;
     }
 
-    function storyUntil(uint256 tokenId) public view tokenExists returns (string memory) {
+    function storyUntil(uint256 tokenId) public view tokenExists(tokenId) returns (string memory) {
       // TODO
     }
 
-    function creatorAt(uint256 tokenId) public view tokenExists returns (address) {
+    function creatorAt(uint256 tokenId) public view tokenExists(tokenId) returns (address) {
       return mintedTokens[tokenId - 1].creator;
     }
 
-    function timestampAt(uint256 tokenId) public view tokenExists returns (uint256) {
+    function timestampAt(uint256 tokenId) public view tokenExists(tokenId) returns (uint256) {
       return mintedTokens[tokenId - 1].timestamp;
     }
 
@@ -176,9 +174,8 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
 
     // ============ SUPPORTING FUNCTIONS ============
 
-    function nextTokenId() private returns (uint256) {
-        tokenCounter.increment();
-        return tokenCounter.current();
+    function nextTokenId() private view returns (uint256) {
+        return mintedTokens.length;
     }
 
     // ============ FUNCTION OVERRIDES ============
@@ -227,7 +224,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
         view
         virtual
         override
-        tokenExists
+        tokenExists(tokenId)
         returns (string memory)
     {
         return
@@ -241,7 +238,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
         external
         view
         override
-        tokenExists
+        tokenExists(tokenId)
         returns (address receiver, uint256 royaltyAmount)
     {
         return (address(this), SafeMath.div(SafeMath.mul(salePrice, 3), 100));
