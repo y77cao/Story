@@ -6,14 +6,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+
+import "./StringUtils.sol";
 
 contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     using Strings for uint256;
@@ -24,13 +23,14 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
 
     uint256 public constant pricePerChar = 0.0003 ether;
     uint256 public constant maxCharsPerMint = 280;
-    uint256 public constant maxCharsPerTitle = 20;
-    uint256 public constant numberOfParagraphRequiredToStartStory = 10;
+    uint256 public constant maxCharsPerTitle = 32;
+    uint256 public constant numberOfMintRequiredToStartStory = 10;
 
     struct TokenMetadata {
       address creator;
       bool isBeginning;
-      bytes32 text;
+      bytes32 title;
+      bytes text;
       uint256 parentTokenId;
       uint256 timestamp;
       uint256 amount;
@@ -40,14 +40,6 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     TokenMetadata[] mintedTokens;
 
     // ============ ACCESS CONTROL/SANITY MODIFIERS ============
-    modifier isCorrectPayment(uint256 price, uint256 numberOfChars) {
-        require(
-            price * numberOfChars == msg.value,
-            "Incorrect ETH value sent"
-        );
-        _;
-    }
-
     modifier tokenExists(uint256 tokenId) {
       require(_exists(tokenId), "Query for nonexistent token");
       _;
@@ -62,25 +54,62 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
 
     // ============ PUBLIC FUNCTIONS ============
 
-    function mint(uint256 numberOfChars, bytes32 text, bool isBeginning, uint256 parentId)
+    function mint(bytes memory text, uint256 parentId)
         external
         payable
         nonReentrant
-        isCorrectPayment(pricePerChar, numberOfChars)
+        whenNotPaused
+        tokenExists(parentId)
+        returns (uint256)
+    {
+        uint256 textCharCount = StringUtils.strlen(text);
+        require(textCharCount <= maxCharsPerMint, 'Number of characters exceeds limit');
+        require(
+            pricePerChar * textCharCount == msg.value,
+            "Incorrect ETH value sent"
+        );
+
+        if (tx.origin != msg.sender) revert();
+
+        uint256 nextId = mintedTokens.length;
+        mintedTokens.push(TokenMetadata({creator: msg.sender, 
+                                                 isBeginning: false,
+                                                 title: bytes32(0),
+                                                 text: text,
+                                                 parentTokenId: parentId,
+                                                 timestamp: block.timestamp, 
+                                                 amount: msg.value, 
+                                                 withdrawn: 0}));
+        _safeMint(msg.sender, nextId);
+
+        return nextId;
+    }
+
+    function mintWithTitle(bytes32 title, bytes memory text)
+        external
+        payable
+        nonReentrant
         whenNotPaused
         returns (uint256)
     {
-        require(numberOfChars <= maxCharsPerMint, 'number of characters exceeds limit');
+        uint256 textCharCount = StringUtils.strlen(text);
+        require(textCharCount <= maxCharsPerMint, 'Number of characters in text exceeds limit');
+        require(
+            pricePerChar * textCharCount == msg.value,
+            "Incorrect ETH value sent"
+        );
+        if (tx.origin != msg.sender) revert();
+
         uint256 nextId = mintedTokens.length;
-        if (nextId != 0 && isBeginning) {
-            // TODO require owned greater than numberOfParagraphRequiredToStartStory
+        if (nextId != 0) {
+           uint256 numberOfStoriesOwned = balanceOf(msg.sender);
+           require(numberOfStoriesOwned >= numberOfMintRequiredToStartStory, "Must write more before start writing your own story");
         }
-        // validate title if beginning
-        uint parentTokenId = isBeginning ? nextId : parentId;
         mintedTokens.push(TokenMetadata({creator: msg.sender, 
-                                                 isBeginning: isBeginning,
+                                                 isBeginning: true,
+                                                 title: title,
                                                  text: text,
-                                                 parentTokenId: parentTokenId,
+                                                 parentTokenId: nextId,
                                                  timestamp: block.timestamp, 
                                                  amount: msg.value, 
                                                  withdrawn: 0}));
@@ -139,16 +168,16 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
       return mintedTokens.length;
     }
 
-    function storyUntil(uint256 tokenId) public view tokenExists(tokenId) returns (string memory) {
-      // TODO
-    }
-
     function creatorAt(uint256 tokenId) public view tokenExists(tokenId) returns (address) {
-      return mintedTokens[tokenId - 1].creator;
+      return mintedTokens[tokenId].creator;
     }
 
     function timestampAt(uint256 tokenId) public view tokenExists(tokenId) returns (uint256) {
-      return mintedTokens[tokenId - 1].timestamp;
+      return mintedTokens[tokenId].timestamp;
+    }
+
+    function getAllTokens() public view returns (TokenMetadata[] memory) {
+        return mintedTokens;
     }
 
     // ============ OWNER-ONLY ADMIN FUNCTIONS ============
