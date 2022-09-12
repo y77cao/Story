@@ -15,8 +15,9 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 
 
 import "./StringUtils.sol";
+import "./ENSNameResolver.sol";
 
-contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
+contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard, ENSNameResolver {
     using Strings for uint256;
 
     address private openSeaProxyRegistryAddress;
@@ -259,7 +260,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
         '<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>',
         '<rect width="100%" height="100%" fill="black" />',
         '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">', string(metadata.text), '</text>',
-        '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">', "--", getAuthor(tokenId, metadata.owner),'</text>',
+        '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">', "--", getAuthor(tokenId, metadata.creator),'</text>',
         // TODO title, date
         '</svg>'
     );
@@ -271,11 +272,11 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
     );
    }
 
-   function getTokenAttributes(uint256 tokenId) internal view tokenExists(tokenId) returns (string memory) {
+   function getTokenAttributes(uint256 tokenId) internal view tokenExists(tokenId) returns (bytes memory) {
        TokenMetadata memory metadata = mintedTokens[tokenId];
        return abi.encodePacked(
         '[{"trait_type":"Author", "value": ',
-        getAuthor(tokenId, metadata.owner),
+        getAuthor(tokenId, metadata.creator),
         '}, {"trait_type":"Word Count", "value": "',
         StringUtils.strlen(metadata.text).toString(),
         '"}]'
@@ -286,7 +287,7 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
    function getAuthor(
     uint256 tokenId,
     address ownerAddress
-  ) internal view tokenExists(tokenId) returns (bytes memory) {
+  ) internal view tokenExists(tokenId) returns (string memory) {
     string memory authorEns = ENSNameResolver.getENSName(ownerAddress);
     return
         bytes(authorEns).length > 0
@@ -304,6 +305,11 @@ contract Story is ERC721, IERC2981, Ownable, Pausable, ReentrancyGuard {
       s[2 * i + 1] = char(lo);
     }
     return string(s);
+  }
+
+  function char(bytes1 b) internal pure returns (bytes1 c) {
+    if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+    else return bytes1(uint8(b) + 0x57);
   }
 
     function royaltyInfo(uint256 tokenId, uint256 salePrice)
