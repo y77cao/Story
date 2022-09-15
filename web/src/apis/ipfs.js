@@ -12,8 +12,8 @@ export const pinToIPFS = (blob, name) => {
     method: "POST",
     maxBodyLength: "Infinity",
     headers: {
-      pinata_api_key: process.env.REACT_APP_IPFS_API_KEY,
-      pinata_secret_api_key: process.env.REACT_APP_IPFS_SECRET_KEY
+      // pinata_api_key: process.env.REACT_APP_IPFS_API_KEY,
+      // pinata_secret_api_key: process.env.REACT_APP_IPFS_SECRET_KEY
     },
     body: data
   }).then(res => {

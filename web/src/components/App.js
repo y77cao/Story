@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { connect } from "./redux/blockchainSlice";
-import { updateContent } from "./redux/appSlice";
-import * as s from "./styles/globalStyles";
+import { connect } from "../redux/blockchainSlice";
+import { updateContent } from "../redux/appSlice";
+import * as s from "../styles/globalStyles";
 import styled from "styled-components";
-import MintConfirmation from "./components/MintConfirmation";
+import MintConfirmation from "./MintConfirmation";
 
 function App() {
   const dispatch = useDispatch();

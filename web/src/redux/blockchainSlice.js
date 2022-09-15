@@ -70,10 +70,11 @@ export const connect = () => async dispatch => {
       const networkId = await ethereum.request({
         method: "net_version"
       });
-      if (networkId == process.env.REACT_APP_NETWORK_ID) {
+
+      if (networkId == process.env.NEXT_PUBLIC_NETWORK_ID) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const contract = new ethers.Contract(
-          process.env.REACT_APP_CONTRACT_ADDRESS,
+          process.env.CONTRACT_ADDRESS,
           Story.abi,
           provider
         );
@@ -135,9 +136,11 @@ export const mint = contentLength => async (dispatch, getState) => {
       value: ethers.utils.parseEther(`${mintCost}`)
     });
     await txn.wait();
-    dispatch(mintSuccess( {
-        transaction: 
-    }))
+    dispatch(
+      mintSuccess({
+        transaction: ""
+      })
+    );
   } catch (err) {
     dispatch(mintFailed(err.message));
   }
