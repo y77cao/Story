@@ -10,11 +10,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-
 import "./StringUtils.sol";
 import "./ENSNameResolver.sol";
 
-contract Story is ERC721, Ownable, ReentrancyGuard, ENSNameResolver {
+contract Story is ERC721, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
     uint256 public constant pricePerChar = 0.005 ether;
@@ -190,7 +189,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard, ENSNameResolver {
     uint256 tokenId,
     address ownerAddress
   ) internal view tokenExists(tokenId) returns (string memory) {
-    string memory authorEns = ENSNameResolver.getENSName(ownerAddress);
+    string memory authorEns = ''; // ENSNameResolver.lookupENSName(ownerAddress);
     return
         bytes(authorEns).length > 0
           ? authorEns
