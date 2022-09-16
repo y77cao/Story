@@ -1,6 +1,6 @@
 import React from "react";
 import { connect, useDispatch } from "react-redux";
-import Canvas from "./Canvas";
+import MintPreview from "./MintPreview";
 import { upload, claimSuccess } from "../redux/appSlice";
 import { mint } from "../redux/blockchainSlice";
 
@@ -8,7 +8,7 @@ const MintConfirmation = props => {
   const dispatch = useDispatch();
   return (
     <div>
-      <Canvas />
+      <MintPreview />
       <div
         onClick={e => {
           e.preventDefault();

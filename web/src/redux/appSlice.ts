@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { pinToIPFS } from "../apis/ipfs";
 
 const initialState = {
   content: "",
@@ -45,7 +44,7 @@ export const upload = (dataUrl, id) => async dispatch => {
   dispatch(uploadRequest());
   try {
     const blob = await (await fetch(dataUrl)).blob();
-    const resp = await pinToIPFS(blob, id);
+    //  const resp = await pinToIPFS(blob, id);
     dispatch(uploadSuccess({}));
   } catch (err) {
     console.log(err);

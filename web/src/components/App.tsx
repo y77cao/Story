@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { connect } from "../redux/blockchainSlice";
+import { connect, updateAccount, initSuccess } from "../redux/blockchainSlice";
 import { updateContent } from "../redux/appSlice";
 import * as s from "../styles/globalStyles";
 import styled from "styled-components";
 import MintConfirmation from "./MintConfirmation";
+import { ContractClient } from "../clients/contractClient";
+import { Contract } from "ethers";
 
 function App() {
   const dispatch = useDispatch();
@@ -21,6 +23,32 @@ function App() {
   useEffect(() => {
     setDisplayedError(app.errorMsg);
   }, [app.errorMsg]);
+
+  useEffect(() => {
+    const initContract = async () => {
+      try {
+        // @ts-ignore checked in initContract
+        const { ethereum } = window;
+        const { provider, contract } = await ContractClient.initContract();
+        const contractClient = new ContractClient(provider, contract);
+        dispatch(initSuccess({ contractClient }));
+
+        // TODO implements
+        const tokens = await contractClient.getAllTokens();
+
+        ethereum.on("accountsChanged", accounts => {
+          dispatch(updateAccount({ account: accounts[0] }));
+        });
+        ethereum.on("chainChanged", () => {
+          window.location.reload();
+        });
+      } catch (err) {
+        setDisplayedError(err.message);
+      }
+    };
+
+    initContract();
+  }, []);
   // const [claimingNft, setClaimingNft] = useState(false);
   // const [feedback, setFeedback] = useState(`Click buy to mint your NFT.`);
   // const [mintAmount, setMintAmount] = useState(1);
@@ -57,10 +85,6 @@ function App() {
   // };
 
   // useEffect(() => {
-  //   getConfig();
-  // }, []);
-
-  // useEffect(() => {
   //   getData();
   // }, [blockchain.account]);
 
@@ -83,7 +107,6 @@ function App() {
           onClick={e => {
             e.preventDefault();
             dispatch(connect());
-            // getData();
           }}
         >
           {blockchain.account ? blockchain.account : "CONNECT WALLET"}

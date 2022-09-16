@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { updateImageUrl } from "../redux/appSlice";
 
-const Canvas = props => {
+const MintPreview = props => {
   const canvasRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -24,4 +24,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(Canvas);
+export default connect(mapStateToProps)(MintPreview);

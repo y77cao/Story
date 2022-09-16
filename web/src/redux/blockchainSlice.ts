@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ethers } from "ethers";
-import Story from "contracts/Story.sol/Story.json";
+import { ContractClient } from "../clients/contractClient";
 
 const initialState = {
   loading: false,
@@ -14,6 +13,9 @@ export const blockchainSlice = createSlice({
   name: "blockchain",
   initialState,
   reducers: {
+    initSuccess: (state, action) => {
+      state.contractClient = action.payload.contractClient;
+    },
     connectRequest: state => {
       state.loading = true;
     },
@@ -33,9 +35,6 @@ export const blockchainSlice = createSlice({
     },
     mintSuccess: (state, action) => {
       state.loading = false;
-      state.account = action.payload.account;
-      state.contract = action.payload.contract;
-      state.provider = action.payload.provider;
       state.errorMsg = "";
     },
     mintFailed: (state, action) => {
@@ -49,6 +48,7 @@ export const blockchainSlice = createSlice({
 });
 
 export const {
+  initSuccess,
   connectRequest,
   connectSuccess,
   connectFailed,
@@ -60,53 +60,11 @@ export const {
 
 export const connect = () => async dispatch => {
   dispatch(connectRequest());
-  const { ethereum } = window;
-  const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
-  if (metamaskIsInstalled) {
-    try {
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts"
-      });
-      const networkId = await ethereum.request({
-        method: "net_version"
-      });
-
-      if (networkId == process.env.NEXT_PUBLIC_NETWORK_ID) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const contract = new ethers.Contract(
-          process.env.CONTRACT_ADDRESS,
-          Story.abi,
-          provider
-        );
-        dispatch(
-          connectSuccess({
-            account: accounts[0],
-            contract: contract,
-            provider: provider
-          })
-        );
-
-        // Add listeners start
-        ethereum.on("accountsChanged", accounts => {
-          dispatch(updateAccount({ account: accounts[0] }));
-        });
-        ethereum.on("chainChanged", () => {
-          window.location.reload();
-        });
-        // Add listeners end
-      } else {
-        dispatch(
-          connectFailed(
-            `Unsupported network. Please make sure that your are on ethereum mainnet.`
-          )
-        );
-      }
-    } catch (err) {
-      console.log(err);
-      dispatch(connectFailed("Something went wrong."));
-    }
-  } else {
-    dispatch(connectFailed("Unable to find your wallet. Install Metamask?"));
+  try {
+    const account = await ContractClient.connectWallet();
+    dispatch(connectSuccess({ account }));
+  } catch (err) {
+    dispatch(connectFailed(err.message));
   }
 };
 
@@ -138,7 +96,7 @@ export const mint = contentLength => async (dispatch, getState) => {
     await txn.wait();
     dispatch(
       mintSuccess({
-        transaction: ""
+        transaction: txn
       })
     );
   } catch (err) {
