@@ -1,6 +1,4 @@
-import React, { useRef, useEffect } from "react";
-import { connect, useDispatch } from "react-redux";
-import { updateImageUrl } from "../redux/appSlice";
+import React from "react";
 
 export const MintPreview = ({ text, parentId, creator }) => {
   const svgString =
@@ -11,8 +9,11 @@ export const MintPreview = ({ text, parentId, creator }) => {
 
   return (
     <div
-      className="someClassName"
-      style={{ backgroundImage: `url(${svgString})` }}
+      style={{
+        backgroundImage: `url("data:image/svg+xml;base64,${btoa(svgString)}")`,
+        width: "100px",
+        height: "100px"
+      }}
     />
   );
 };

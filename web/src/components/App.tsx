@@ -7,6 +7,7 @@ import { MintConfirmation } from "./MintConfirmation";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
 import { toStories } from "../utils";
+import { ethers } from "ethers";
 
 function App() {
   const dispatch = useDispatch();
@@ -31,9 +32,13 @@ function App() {
         const { ethereum } = window;
         const { provider, contract } = await ContractClient.initContract();
         const contractClient = new ContractClient(provider, contract);
+
+        const pricePerChar = (
+          await contractClient.getPricePerChar()
+        ).toString();
         const tokens = await contractClient.getAllTokens();
         const stories = toStories(tokens);
-        dispatch(initSuccess({ contractClient, stories }));
+        dispatch(initSuccess({ contractClient, stories, pricePerChar }));
 
         ethereum.on("accountsChanged", accounts => {
           dispatch(updateAccount({ account: accounts[0] }));
@@ -48,51 +53,21 @@ function App() {
 
     initContract();
   }, []);
-  // const [claimingNft, setClaimingNft] = useState(false);
-  // const [feedback, setFeedback] = useState(`Click buy to mint your NFT.`);
-  // const [mintAmount, setMintAmount] = useState(1);
-
-  // const claimNFTs = () => {
-  //   setClaimingNft(true);
-  //   blockchain.smartContract.methods
-  //     .mint(mintAmount)
-  //     .send({
-  //       gasLimit: String(totalGasLimit),
-  //       to: CONFIG.CONTRACT_ADDRESS,
-  //       from: blockchain.account,
-  //       value: totalCostWei,
-  //     })
-  //     .once("error", (err) => {
-  //       console.log(err);
-  //       setFeedback("Sorry, something went wrong please try again later.");
-  //       setClaimingNft(false);
-  //     })
-  //     .then((receipt) => {
-  //       console.log(receipt);
-  //       setFeedback(
-  //         `WOW, the ${CONFIG.NFT_NAME} is yours! go visit Opensea.io to view it.`
-  //       );
-  //       setClaimingNft(false);
-  //       dispatch(fetchData(blockchain.account));
-  //     });
-  // };
-
-  // const getData = () => {
-  //   if (blockchain.account !== "" && blockchain.contract !== null) {
-  //     dispatch(fetchData(blockchain.account));
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getData();
-  // }, [blockchain.account]);
 
   const toggleMintConfirmationVisible = () => {
     setMintConfirmationVisible(!mintConfirmationVisible);
   };
 
-  const estimatedMintCost = () => {
-    return input.length * 0.001;
+  const estimatedMintCost = (): string => {
+    return ethers.utils.formatUnits(
+      (BigInt(input.length) * BigInt(blockchain.pricePerChar)).toString()
+    );
+  };
+
+  const renderStoryItems = () => {
+    return Object.keys(blockchain.stories).map(title => {
+      return <DesktopItem title={`${title}.txt`} onClick={() => {}} />;
+    });
   };
 
   return (
@@ -103,6 +78,7 @@ function App() {
         style={{ padding: 24, backgroundColor: "var(--primary)" }}
       >
         <DesktopItem title={"about.txt"} onClick={() => {}} />
+        {renderStoryItems()}
         <StyledButton
           onClick={e => {
             e.preventDefault();
@@ -128,7 +104,7 @@ function App() {
         {mintConfirmationVisible ? (
           <MintConfirmation
             text={input}
-            creator={""}
+            creator={blockchain.account}
             parentId={0}
             toggleMintConfirmationVisible={toggleMintConfirmationVisible}
           />

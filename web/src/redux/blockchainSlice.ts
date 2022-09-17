@@ -6,6 +6,7 @@ const initialState = {
   account: null,
   contractClient: null,
   stories: null,
+  pricePerChar: 0,
   errorMsg: "",
   transaction: null
 };
@@ -17,6 +18,7 @@ export const blockchainSlice = createSlice({
     initSuccess: (state, action) => {
       state.contractClient = action.payload.contractClient;
       state.stories = action.payload.stories;
+      state.pricePerChar = action.payload.pricePerChar;
     },
     connectRequest: state => {
       state.loading = true;

@@ -69,11 +69,11 @@ export class ContractClient {
     try {
       const signer = this.provider.getSigner();
       const contractWithSigner = this.contract.connect(signer);
-      const pricePerChar = (await this.getPricePerChar()).toNumber();
-      const mintCost = (text.length * pricePerChar).toFixed(5);
+      const pricePerChar = await this.getPricePerChar();
+      const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
       const textBytes = ethers.utils.toUtf8Bytes(text);
       const txn = await contractWithSigner.mint(textBytes, parentId, {
-        value: ethers.utils.parseEther(`${mintCost}`)
+        value: mintCost
       });
       await txn.wait();
       return txn;
@@ -88,8 +88,8 @@ export class ContractClient {
     try {
       const signer = this.provider.getSigner();
       const contractWithSigner = this.contract.connect(signer);
-      const pricePerChar = (await this.getPricePerChar()).toNumber();
-      const mintCost = (text.length * pricePerChar).toFixed(5);
+      const pricePerChar = await this.getPricePerChar();
+      const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
       const titleBytes = ethers.utils.formatBytes32String(title);
       const textBytes = ethers.utils.toUtf8Bytes(text);
       const txn = await contractWithSigner.mintWithTitle(
