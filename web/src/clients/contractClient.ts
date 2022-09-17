@@ -1,8 +1,9 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import Story from "contracts/Story.sol/Story.json";
 
 // @ts-ignore
 export class ContractClient {
+  // TODO types
   provider;
   contract;
   constructor(provider, contract) {
@@ -55,5 +56,54 @@ export class ContractClient {
     }
   }
 
-  async getAllTokens() {}
+  async getAllTokens() {
+    return this.contract.getAllTokens();
+  }
+
+  async getPricePerChar(): Promise<BigNumber> {
+    return this.contract.pricePerChar();
+  }
+
+  async mint(text: string, parentId: number) {
+    // TODO boundary check
+    try {
+      const signer = this.provider.getSigner();
+      const contractWithSigner = this.contract.connect(signer);
+      const pricePerChar = (await this.getPricePerChar()).toNumber();
+      const mintCost = (text.length * pricePerChar).toFixed(5);
+      const textBytes = ethers.utils.toUtf8Bytes(text);
+      const txn = await contractWithSigner.mint(textBytes, parentId, {
+        value: ethers.utils.parseEther(`${mintCost}`)
+      });
+      await txn.wait();
+      return txn;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async mintWithTitle(title: string, text: string) {
+    // TODO boundary check
+    try {
+      const signer = this.provider.getSigner();
+      const contractWithSigner = this.contract.connect(signer);
+      const pricePerChar = (await this.getPricePerChar()).toNumber();
+      const mintCost = (text.length * pricePerChar).toFixed(5);
+      const titleBytes = ethers.utils.formatBytes32String(title);
+      const textBytes = ethers.utils.toUtf8Bytes(text);
+      const txn = await contractWithSigner.mintWithTitle(
+        titleBytes,
+        textBytes,
+        {
+          value: ethers.utils.parseEther(`${mintCost}`)
+        }
+      );
+      await txn.wait();
+      return txn;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
 }

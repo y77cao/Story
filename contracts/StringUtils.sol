@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Modified from source:
 // https://github.com/ensdomains/ens-contracts/blob/master/contracts/ethregistrar/StringUtils.sol
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.0;
 
 library StringUtils {
     /**

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { connect, updateAccount, initSuccess } from "../redux/blockchainSlice";
-import { updateContent } from "../redux/appSlice";
 import * as s from "../styles/globalStyles";
 import styled from "styled-components";
-import MintConfirmation from "./MintConfirmation";
+import { MintConfirmation } from "./MintConfirmation";
 import { ContractClient } from "../clients/contractClient";
-import { Contract } from "ethers";
+import { DesktopItem } from "./DesktopItem";
+import { toStories } from "../utils";
 
 function App() {
   const dispatch = useDispatch();
@@ -31,10 +31,9 @@ function App() {
         const { ethereum } = window;
         const { provider, contract } = await ContractClient.initContract();
         const contractClient = new ContractClient(provider, contract);
-        dispatch(initSuccess({ contractClient }));
-
-        // TODO implements
         const tokens = await contractClient.getAllTokens();
+        const stories = toStories(tokens);
+        dispatch(initSuccess({ contractClient, stories }));
 
         ethereum.on("accountsChanged", accounts => {
           dispatch(updateAccount({ account: accounts[0] }));
@@ -103,6 +102,7 @@ function App() {
         ai={"center"}
         style={{ padding: 24, backgroundColor: "var(--primary)" }}
       >
+        <DesktopItem title={"about.txt"} onClick={() => {}} />
         <StyledButton
           onClick={e => {
             e.preventDefault();
@@ -121,13 +121,15 @@ function App() {
           onClick={e => {
             e.preventDefault();
             toggleMintConfirmationVisible();
-            dispatch(updateContent({ content: input }));
           }}
         >
           MINT
         </StyledButton>
         {mintConfirmationVisible ? (
           <MintConfirmation
+            text={input}
+            creator={""}
+            parentId={0}
             toggleMintConfirmationVisible={toggleMintConfirmationVisible}
           />
         ) : null}

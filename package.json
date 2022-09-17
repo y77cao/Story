@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.4.1",
+    "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.3",

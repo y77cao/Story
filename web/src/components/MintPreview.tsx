@@ -2,26 +2,17 @@ import React, { useRef, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import { updateImageUrl } from "../redux/appSlice";
 
-const MintPreview = props => {
-  const canvasRef = useRef(null);
-  const dispatch = useDispatch();
+export const MintPreview = ({ text, parentId, creator }) => {
+  const svgString =
+    `<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">` +
+    `<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>` +
+    `<rect width="100%" height="100%" fill="black" /><text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">${text}</text>` +
+    `<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">-- ${creator}</text></svg>`;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    context.fillStyle = "#000000";
-    context.fillText(props.content, 10, 50);
-    dispatch(updateImageUrl({ imageUrl: canvas.toDataURL("image/png") }));
-  }, []);
-
-  return <canvas ref={canvasRef} />;
+  return (
+    <div
+      className="someClassName"
+      style={{ backgroundImage: `url(${svgString})` }}
+    />
+  );
 };
-
-const mapStateToProps = state => {
-  return {
-    account: state.blockchain.account,
-    content: state.app.content
-  };
-};
-
-export default connect(mapStateToProps)(MintPreview);

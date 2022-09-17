@@ -1,18 +1,22 @@
 import React from "react";
 import { connect, useDispatch } from "react-redux";
-import MintPreview from "./MintPreview";
-import { upload, claimSuccess } from "../redux/appSlice";
+import { MintPreview } from "./MintPreview";
 import { mint } from "../redux/blockchainSlice";
 
-const MintConfirmation = props => {
+export const MintConfirmation = ({
+  text,
+  parentId,
+  creator,
+  toggleMintConfirmationVisible
+}) => {
   const dispatch = useDispatch();
   return (
     <div>
-      <MintPreview />
+      <MintPreview {...{ text, parentId, creator }} />
       <div
         onClick={e => {
           e.preventDefault();
-          dispatch(mintAndUpload(props.content.length));
+          dispatch(mint(text, parentId));
         }}
       >
         Mint?
@@ -20,7 +24,7 @@ const MintConfirmation = props => {
       <div
         onClick={e => {
           e.preventDefault();
-          props.toggleMintConfirmationVisible();
+          toggleMintConfirmationVisible();
         }}
       >
         Bye
@@ -28,17 +32,3 @@ const MintConfirmation = props => {
     </div>
   );
 };
-
-const mapStateToProps = state => {
-  return state.app;
-};
-
-const mintAndUpload = contentLength => async dispatch => {
-  dispatch(mint(contentLength)).then(res => {
-    console.log(res);
-    return res;
-  });
-  dispatch(claimSuccess());
-};
-
-export default connect(mapStateToProps)(MintConfirmation);
