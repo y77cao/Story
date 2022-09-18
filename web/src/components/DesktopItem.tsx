@@ -1,11 +1,21 @@
 import React from "react";
+import styled from "styled-components";
+import Image from "next/image";
+import notepad from "../../public/notepad.png";
+
 export const DesktopItem = ({ title, onClick }) => {
   return (
-    <div>
+    <DesktopItemWrapper>
+      <Image src={notepad}></Image>
       <div onClick={onClick}>{title}</div>
-    </div>
+    </DesktopItemWrapper>
   );
 };
+
+const DesktopItemWrapper = styled.div`
+  margin: 15px;
+  text-align: center;
+`;
 
 // const mapStateToProps = state => {
 //   return state.app;

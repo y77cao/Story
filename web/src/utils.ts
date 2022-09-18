@@ -3,15 +3,14 @@ import { ethers } from "ethers";
 export const toStories = tokens => {
   const stories = {};
   tokens.forEach(token => {
-    const { amount, creator, text, title, withdrawn } = token;
-    const titleStr = ethers.utils.toUtf8String(title);
-    if (token.isBeginning) stories[titleStr] = [];
+    const { amount, creator, text, title, parentTokenId, withdrawn } = token;
+    if (token.isBeginning) stories[parentTokenId] = [];
 
-    stories[titleStr].push({
+    stories[parentTokenId].push({
       amount: amount.toString(),
       creator,
       text: ethers.utils.toUtf8String(text),
-      title: titleStr,
+      title: ethers.utils.toUtf8String(title),
       withdrawn: withdrawn.toString()
     });
   });

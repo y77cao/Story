@@ -3,6 +3,7 @@ import App from "../components/App";
 import store from "../redux/store";
 import { Provider } from "react-redux";
 import reportWebVitals from "../reportWebVitals";
+import "../styles/index.css";
 
 export default function main() {
   return (
