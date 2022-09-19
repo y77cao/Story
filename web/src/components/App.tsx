@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateAccount, initSuccess } from "../redux/blockchainSlice";
-import * as s from "../styles/globalStyles";
+import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import styled from "styled-components";
 import { MintConfirmation } from "./MintConfirmation";
 import { Menu } from "./Menu";
+import { ErrorModal } from "./ErrorModal";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
 import { toStories } from "../utils";
@@ -14,7 +15,6 @@ function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector(state => state.blockchain);
   const app = useSelector(state => state.app);
-  const [mintConfirmationVisible, setMintConfirmationVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [displayedError, setDisplayedError] = useState("");
 
@@ -72,7 +72,11 @@ function App() {
   const renderStoryItems = () => {
     return Object.values(blockchain.stories).map(tokens => {
       return (
-        <DesktopItem title={`${tokens[0].title}.txt`} onClick={() => {}} />
+        <DesktopItem
+          title={`${tokens[0].title}.txt`}
+          onClick={() => {}}
+          key={tokens[0].title}
+        />
       );
     });
   };
@@ -83,9 +87,9 @@ function App() {
         <DesktopItem title={"about.txt"} onClick={() => {}} />
         {blockchain.stories ? renderStoryItems() : null}
       </DesktopItemList>
-      <BottomBarWrapper>
+      <BottomWrapper>
         {menuVisible ? <Menu /> : null}
-        <StartButtonWrapper>
+        <BarWrapper>
           <StartButton
             onClick={e => {
               e.preventDefault();
@@ -94,51 +98,49 @@ function App() {
           >
             Start
           </StartButton>
-        </StartButtonWrapper>
-      </BottomBarWrapper>
-      <div>{blockchain.account ? blockchain.account : null}</div>
-      {displayedError ? <div>{displayedError}</div> : null}
+          {blockchain.account ? (
+            <TabWrapper>{blockchain.account}</TabWrapper>
+          ) : null}
+        </BarWrapper>
+      </BottomWrapper>
+      {displayedError.length ? (
+        <ErrorModal
+          message={displayedError}
+          setDisplayedError={setDisplayedError}
+        />
+      ) : null}
     </DesktopContainer>
   );
 }
 
-export const StartButton = styled.button`
-  background-color: lightgrey;
-  color: white;
+export const StartButton = styled(StyledButton)`
   padding: 5px 15px;
-  outline: 0;
+  margin-right: 10px;
+`;
+
+export const TabWrapper = styled(StyledContainer)`
+  padding: 5px 15px;
   cursor: pointer;
-  border-top: 1px solid #fff;
-  border-left: 1px solid #fff;
-  border-right: 1px solid gray;
-  border-bottom: 1px solid gray;
-  box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
-  transition: ease background-color 250ms;
   &:hover {
     box-shadow: inset 1px 1px 2px 0px #1b1b1b, 5px 5px 15px 5px rgba(0, 0, 0, 0);
   }
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: black;
-  &:disabled {
-    cursor: default;
-    opacity: 0.7;
-  }
 `;
 
-const BottomBarWrapper = styled.div`
+const BottomWrapper = styled.div`
   width: 100%;
   height: auto;
   margin-top: auto;
 `;
 
-const StartButtonWrapper = styled.div`
+const BarWrapper = styled(StyledContainer)`
   width: 100%;
   height: auto;
-  background-color: lightgrey;
-  border-top: 1px solid #fff;
-  border-left: 1px solid #fff;
-  border-right: 1px solid gray;
-  border-bottom: 1px solid gray;
-  box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+  display: flex;
 `;
 
 const DesktopItemList = styled.div`

@@ -16,15 +16,15 @@ export class ContractClient {
     const { ethereum } = window;
     const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
     if (!metamaskIsInstalled) throw new Error("Please install Metamask");
+    const networkId = await ethereum.request({
+      method: "net_version"
+    });
+    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID)
+      throw new Error(
+        `Unsupported network. Please make sure that your are on ethereum mainnet.`
+      );
 
     try {
-      const networkId = await ethereum.request({
-        method: "net_version"
-      });
-      if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID)
-        throw new Error(
-          `Unsupported network. Please make sure that your are on ethereum mainnet.`
-        );
       const provider = new ethers.providers.Web3Provider(ethereum);
       const contract = new ethers.Contract(
         process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
@@ -43,7 +43,13 @@ export class ContractClient {
     const { ethereum } = window;
     const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
     if (!metamaskIsInstalled) throw new Error("Please install Metamask");
-
+    const networkId = await ethereum.request({
+      method: "net_version"
+    });
+    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID)
+      throw new Error(
+        `Unsupported network. Please make sure that your are on ethereum mainnet.`
+      );
     try {
       const accounts = await ethereum.request({
         method: "eth_requestAccounts"

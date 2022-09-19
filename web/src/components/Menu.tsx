@@ -55,6 +55,7 @@ const MenuItem = styled.div`
   &:hover {
     background-color: darkgrey;
   }
+  cursor: pointer;
 `;
 
 const ImageWrapper = styled.div`

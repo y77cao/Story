@@ -15,6 +15,7 @@ export const DesktopItem = ({ title, onClick }) => {
 const DesktopItemWrapper = styled.div`
   margin: 15px;
   text-align: center;
+  cursor: pointer;
 `;
 
 // const mapStateToProps = state => {
