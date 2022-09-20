@@ -21,7 +21,7 @@ const TextEditor = ({ textMetadata, title, parentId, setActiveStory }) => {
       </HeaderWrapper>
       <ContentWrapper>
         {textMetadata.map(metadata => (
-          <div>{metadata.text}</div>
+          <span>{metadata.text}</span>
         ))}
         <StyledInput
           role="textbox"
@@ -72,10 +72,9 @@ const CloseButton = styled(StyledButton)`
 const ContentWrapper = styled.div`
   width: 100%;
   height: 100%;
-  display: inline-flex;
+  display: inline;
+  float: left;
   background-color: white;
-  align-items: flex-start;
-  flex-wrap: wrap;
 `;
 
 const StyledInput = styled.span`
