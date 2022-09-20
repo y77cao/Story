@@ -6,7 +6,6 @@ import { StyledContainer, StyledButton } from "../styles/globalStyles";
 const TextEditor = ({ textMetadata, title, parentId, setActiveStory }) => {
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
-
   return (
     <TextEditorWrapper>
       <HeaderWrapper>
@@ -25,12 +24,14 @@ const TextEditor = ({ textMetadata, title, parentId, setActiveStory }) => {
           <div>{metadata.text}</div>
         ))}
         <StyledInput
-          type="textarea"
-          name="textValue"
+          role="textbox"
+          contentEditable={true}
           autoFocus={true}
           onBlur={({ target }) => target.focus()}
           onChange={e => setInput(e.target.value)}
-        />
+        >
+          {""}
+        </StyledInput>
       </ContentWrapper>
     </TextEditorWrapper>
   );
@@ -74,12 +75,19 @@ const ContentWrapper = styled.div`
   display: inline-flex;
   background-color: white;
   align-items: flex-start;
+  flex-wrap: wrap;
 `;
 
-const StyledInput = styled.input`
+const StyledInput = styled.span`
   border: none;
   &:focus {
     outline: none;
   }
-  font-size: 12;
+  &:empty:focus::before,
+  &:empty::before {
+    content: " ...and?";
+    color: lightgrey;
+  }
+
+  color: black;
 `;
