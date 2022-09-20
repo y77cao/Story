@@ -3,11 +3,11 @@ import styled from "styled-components";
 import Image from "next/image";
 import notepad from "../../public/notepad.png";
 
-export const DesktopItem = ({ title, onClick }) => {
+export const DesktopItem = ({ title, parentId, onClick }) => {
   return (
-    <DesktopItemWrapper>
+    <DesktopItemWrapper onClick={onClick}>
       <Image src={notepad}></Image>
-      <div onClick={onClick}>{title}</div>
+      <div>{title}</div>
     </DesktopItemWrapper>
   );
 };
@@ -17,17 +17,3 @@ const DesktopItemWrapper = styled.div`
   text-align: center;
   cursor: pointer;
 `;
-
-// const mapStateToProps = state => {
-//   return state.app;
-// };
-
-// const mintAndUpload = contentLength => async dispatch => {
-//   dispatch(mint(contentLength)).then(res => {
-//     console.log(res);
-//     return res;
-//   });
-//   dispatch(claimSuccess());
-// };
-
-// export default connect(mapStateToProps)(MintConfirmation);

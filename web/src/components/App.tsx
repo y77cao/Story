@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateAccount, initSuccess } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import styled from "styled-components";
-import { MintConfirmation } from "./MintConfirmation";
 import { Menu } from "./Menu";
 import { ErrorModal } from "./ErrorModal";
+import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
 import { toStories } from "../utils";
@@ -16,6 +16,7 @@ function App() {
   const blockchain = useSelector(state => state.blockchain);
   const app = useSelector(state => state.app);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [activeStory, setActiveStory] = useState(null);
   const [displayedError, setDisplayedError] = useState("");
 
   useEffect(() => {
@@ -55,10 +56,6 @@ function App() {
     initContract();
   }, []);
 
-  // const toggleMintConfirmationVisible = () => {
-  //   setMintConfirmationVisible(!mintConfirmationVisible);
-  // };
-
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
@@ -70,11 +67,15 @@ function App() {
   // };
 
   const renderStoryItems = () => {
-    return Object.values(blockchain.stories).map(tokens => {
+    return Object.entries(blockchain.stories).map(([parentId, tokens]) => {
       return (
         <DesktopItem
           title={`${tokens[0].title}.txt`}
-          onClick={() => {}}
+          parentId={parentId}
+          onClick={e => {
+            e.preventDefault();
+            setActiveStory({ title: tokens[0].title, parentId });
+          }}
           key={tokens[0].title}
         />
       );
@@ -84,9 +85,16 @@ function App() {
   return (
     <DesktopContainer>
       <DesktopItemList>
-        <DesktopItem title={"about.txt"} onClick={() => {}} />
+        <DesktopItem title={"about.txt"} parentId={-1} onClick={() => {}} />
         {blockchain.stories ? renderStoryItems() : null}
       </DesktopItemList>
+      {activeStory ? (
+        <TextEditor
+          title={activeStory.title}
+          parentId={activeStory.parentId}
+          setActiveStory={setActiveStory}
+        ></TextEditor>
+      ) : null}
       <BottomWrapper>
         {menuVisible ? <Menu /> : null}
         <BarWrapper>
