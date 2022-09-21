@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { ContractClient } from "../clients/contractClient";
+import { appError } from "./appSlice";
 
 const initialState = {
   loading: false,
@@ -7,7 +8,6 @@ const initialState = {
   contractClient: null,
   stories: null,
   pricePerChar: 0,
-  errorMsg: "",
   transaction: null
 };
 
@@ -26,23 +26,19 @@ export const blockchainSlice = createSlice({
     connectSuccess: (state, action) => {
       state.loading = false;
       state.account = action.payload.account;
-      state.errorMsg = "";
     },
     connectFailed: (state, action) => {
       state.loading = false;
-      state.errorMsg = action.payload;
     },
     mintRequest: state => {
       state.loading = true;
     },
     mintSuccess: (state, action) => {
       state.loading = false;
-      state.errorMsg = "";
       state.transaction = action.payload.transaction;
     },
     mintFailed: (state, action) => {
       state.loading = false;
-      state.errorMsg = action.payload;
     },
     updateAccount: (state, action) => {
       state.account = action.payload.account;
@@ -67,7 +63,7 @@ export const connect = () => async dispatch => {
     const account = await ContractClient.connectWallet();
     dispatch(connectSuccess({ account }));
   } catch (err) {
-    dispatch(connectFailed(err.message));
+    dispatch(appError(err.message));
   }
 };
 
@@ -84,7 +80,7 @@ export const mint =
         })
       );
     } catch (err) {
-      dispatch(mintFailed(err.message));
+      dispatch(appError(err.message));
     }
   };
 

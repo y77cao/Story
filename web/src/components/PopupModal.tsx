@@ -2,39 +2,63 @@ import React from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import error from "../../public/error.png";
+import warning from "../../public/warning.png";
+import success from "../../public/success.png";
 import { StyledButton, StyledContainer } from "../styles/globalStyles";
 
-export const ErrorModal = ({ title = "Error", message, setDisplayedError }) => {
+export enum modalState {
+  ERROR,
+  WARN,
+  SUCCESS
+}
+const getIconAndTitle = state => {
+  switch (state) {
+    case modalState.ERROR:
+      return { icon: <Image src={error} width={38}></Image>, title: "Error" };
+    case modalState.WARN:
+      return {
+        icon: <Image src={warning} width={38}></Image>,
+        title: "Warning"
+      };
+    case modalState.SUCCESS:
+      return {
+        icon: <Image src={success} width={38}></Image>,
+        title: "Success"
+      };
+  }
+};
+export const PopupModal = ({ state, message, onClose, onOk }) => {
+  const { icon, title } = getIconAndTitle(state);
   return (
-    <ErrorModalWrapper>
+    <PopupModalWrapper>
       <HeaderWrapper>
         <div style={{ margin: "0 4px" }}>{title}</div>
         <CloseButton
           onClick={e => {
             e.preventDefault();
-            setDisplayedError("");
+            onClose();
           }}
         >
           x
         </CloseButton>
       </HeaderWrapper>
       <ContentWrapper>
-        <Image src={error} width={38}></Image>
+        {icon}
         <div style={{ textAlign: "left", width: "300px" }}>{message}</div>
       </ContentWrapper>
       <OkButton
         onClick={e => {
           e.preventDefault();
-          setDisplayedError("");
+          onOk();
         }}
       >
         OK
       </OkButton>
-    </ErrorModalWrapper>
+    </PopupModalWrapper>
   );
 };
 
-const ErrorModalWrapper = styled(StyledContainer)`
+const PopupModalWrapper = styled(StyledContainer)`
   position: absolute;
   width: 400px;
   height: 200px;

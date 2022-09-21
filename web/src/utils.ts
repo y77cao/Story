@@ -17,3 +17,9 @@ export const toStories = tokens => {
 
   return stories;
 };
+
+export const estimatedMintCost = (charCount, pricePerChar): string => {
+  return ethers.utils.formatUnits(
+    (BigInt(charCount) * BigInt(pricePerChar)).toString()
+  );
+};

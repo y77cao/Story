@@ -5,11 +5,12 @@ import { updateAccount, initSuccess } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import styled from "styled-components";
 import { Menu } from "./Menu";
-import { ErrorModal } from "./ErrorModal";
+import { PopupModal, modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
 import { toStories } from "../utils";
+import { appError, clearAppError } from "../redux/appSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -17,15 +18,6 @@ function App() {
   const app = useSelector(state => state.app);
   const [menuVisible, setMenuVisible] = useState(false);
   const [activeStory, setActiveStory] = useState(null);
-  const [displayedError, setDisplayedError] = useState("");
-
-  useEffect(() => {
-    setDisplayedError(blockchain.errorMsg);
-  }, [blockchain.errorMsg]);
-
-  useEffect(() => {
-    setDisplayedError(app.errorMsg);
-  }, [app.errorMsg]);
 
   useEffect(() => {
     const initContract = async () => {
@@ -49,7 +41,7 @@ function App() {
           window.location.reload();
         });
       } catch (err) {
-        setDisplayedError(err.message);
+        dispatch(appError(err.message));
       }
     };
 
@@ -59,12 +51,6 @@ function App() {
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
-
-  // const estimatedMintCost = (): string => {
-  //   return ethers.utils.formatUnits(
-  //     (BigInt(input.length) * BigInt(blockchain.pricePerChar)).toString()
-  //   );
-  // };
 
   const renderStoryItems = () => {
     return Object.entries(blockchain.stories).map(([parentId, tokens]) => {
@@ -86,17 +72,17 @@ function App() {
     <DesktopContainer>
       <DesktopItemList>
         <DesktopItem title={"about.txt"} parentId={-1} onClick={() => {}} />
-        {blockchain.stories ? renderStoryItems() : null}
+        {blockchain.stories && renderStoryItems()}
       </DesktopItemList>
-      {activeStory ? (
+      {activeStory && (
         <TextEditor
           title={activeStory.title}
           parentId={activeStory.parentId}
           setActiveStory={setActiveStory}
         ></TextEditor>
-      ) : null}
+      )}
       <BottomWrapper>
-        {menuVisible ? <Menu /> : null}
+        {menuVisible && <Menu />}
         <BarWrapper>
           <StartButton
             onClick={e => {
@@ -106,15 +92,15 @@ function App() {
           >
             Start
           </StartButton>
-          {blockchain.account ? (
-            <TabWrapper>{blockchain.account}</TabWrapper>
-          ) : null}
+          {blockchain.account && <TabWrapper>{blockchain.account}</TabWrapper>}
         </BarWrapper>
       </BottomWrapper>
-      {displayedError.length ? (
-        <ErrorModal
-          message={displayedError}
-          setDisplayedError={setDisplayedError}
+      {app.errorMsg ? (
+        <PopupModal
+          state={modalState.ERROR}
+          message={app.errorMsg}
+          onClose={() => dispatch(clearAppError())}
+          onOk={() => dispatch(clearAppError())}
         />
       ) : null}
     </DesktopContainer>

@@ -11,8 +11,8 @@ export const MintPreview = ({ text, parentId, creator }) => {
     <div
       style={{
         backgroundImage: `url("data:image/svg+xml;base64,${btoa(svgString)}")`,
-        width: "100px",
-        height: "100px"
+        width: "300px",
+        height: "300px"
       }}
     />
   );
