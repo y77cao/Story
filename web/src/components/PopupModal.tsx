@@ -14,15 +14,18 @@ export enum modalState {
 const getIconAndTitle = state => {
   switch (state) {
     case modalState.ERROR:
-      return { icon: <Image src={error} width={38}></Image>, title: "Error" };
+      return {
+        icon: <Image src={error} width={38} height={38}></Image>,
+        title: "Error"
+      };
     case modalState.WARN:
       return {
-        icon: <Image src={warning} width={38}></Image>,
+        icon: <Image src={warning} width={38} height={38}></Image>,
         title: "Warning"
       };
     case modalState.SUCCESS:
       return {
-        icon: <Image src={success} width={38}></Image>,
+        icon: <Image src={success} width={38} height={38}></Image>,
         title: "Success"
       };
   }
@@ -89,6 +92,7 @@ const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-around;
+  align-items: center;
 `;
 const OkButton = styled(StyledButton)`
   margin: 10px;

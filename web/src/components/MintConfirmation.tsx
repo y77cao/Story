@@ -1,22 +1,24 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { MintPreview } from "./MintPreview";
-import { mint } from "../redux/blockchainSlice";
+import { mint, clearTransaction } from "../redux/blockchainSlice";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
+import { estimatedMintCost } from "../utils";
+import { PopupModal, modalState } from "./PopupModal";
 
-export const MintConfirmation = ({
+const MintConfirmation = ({
   text,
   parentId,
   creator,
-  setMintConfirmationVisible
+  pricePerChar,
+  loading,
+  transaction,
+  setMintConfirmationVisible,
+  setSaved
 }) => {
   const dispatch = useDispatch();
-  const estimatedMintCost = (): string => {
-    return ethers.utils.formatUnits(
-      (BigInt(input.length) * BigInt(blockchain.pricePerChar)).toString()
-    );
-  };
+
   return (
     <MintConfirmationWrapper>
       <HeaderWrapper>
@@ -32,6 +34,12 @@ export const MintConfirmation = ({
       </HeaderWrapper>
       <ContentWrapper>
         <MintPreview {...{ text, parentId, creator }} />
+        <Text>
+          Saving this snippet will mint an ERC721 token on Ethereum with all
+          data on-chain. The mint cost will be $
+          {estimatedMintCost(text.length, pricePerChar)} ether plus gas. Are you
+          sure you want to proceed?
+        </Text>
         <ContentButtonWrapper>
           <ContentButton
             onClick={e => {
@@ -51,14 +59,44 @@ export const MintConfirmation = ({
           </ContentButton>
         </ContentButtonWrapper>
       </ContentWrapper>
+      {transaction ? (
+        <PopupModal
+          state={modalState.SUCCESS}
+          message={
+            "Mint successful. Check your transaction on Etherscan and verify your token on Opensea."
+          }
+          onClose={() => {
+            dispatch(clearTransaction());
+            setMintConfirmationVisible(false);
+            setSaved(true);
+          }}
+          onOk={() => {
+            dispatch(clearTransaction());
+            setMintConfirmationVisible(false);
+            setSaved(true);
+          }}
+        />
+      ) : null}
     </MintConfirmationWrapper>
   );
 };
 
+const mapStateToProps = (state, ownProps) => ({
+  creator: state.blockchain.account,
+  pricePerChar: state.blockchain.pricePerChar,
+  loading: state.blockchain.loading,
+  transaction: state.blockchain.transaction,
+  ...ownProps
+});
+
+/** TODO: link on popup, refresh on re-open, tooltip, withdraw funds, tabs app, bottom icon */
+
+export default connect(mapStateToProps)(MintConfirmation);
+
 const MintConfirmationWrapper = styled(StyledContainer)`
   position: absolute;
-  width: 400px;
-  height: 400px;
+  width: 600px;
+  height: 500px;
   display: flex;
   flex-direction: column;
   top: 0;
@@ -96,4 +134,9 @@ const ContentButtonWrapper = styled.div``;
 
 const ContentButton = styled(StyledButton)`
   margin: 10px;
+`;
+
+const Text = styled.div`
+  text-align: center;
+  margin: 0 10px;
 `;

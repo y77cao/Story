@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
-import { MintConfirmation } from "./MintConfirmation";
+import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
 import { PopupModal, modalState } from "./PopupModal";
 
@@ -18,6 +18,7 @@ const TextEditor = ({
   const [mintConfirmationVisible, setMintConfirmationVisible] = useState(false);
   const [closeConfirmationVisible, setCloseConfirmationVisible] =
     useState(false);
+  const [saved, setSaved] = useState(true);
 
   const validateMint = () => {
     if (input.length > 280)
@@ -52,7 +53,8 @@ const TextEditor = ({
           <HeaderButton
             onClick={e => {
               e.preventDefault();
-              setCloseConfirmationVisible(true);
+              if (saved || !input.length) setActiveStory(null);
+              else setCloseConfirmationVisible(true);
             }}
           >
             X
@@ -68,7 +70,10 @@ const TextEditor = ({
           contentEditable={true}
           autoFocus={true}
           onBlur={({ target }) => target.focus()}
-          onInput={e => setInput(e.currentTarget.innerText)}
+          onInput={e => {
+            setInput(e.currentTarget.innerText);
+            setSaved(false);
+          }}
         >
           {""}
         </StyledInput>
@@ -77,8 +82,8 @@ const TextEditor = ({
         <MintConfirmation
           text={input}
           parentId={parentId}
-          creator={creator}
           setMintConfirmationVisible={setMintConfirmationVisible}
+          setSaved={setSaved}
         />
       )}
       {closeConfirmationVisible && (

@@ -37,6 +37,9 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.transaction = action.payload.transaction;
     },
+    clearTransaction: state => {
+      state.transaction = null;
+    }, // TODO might be able to move this to MintConfirmation
     mintFailed: (state, action) => {
       state.loading = false;
     },
@@ -53,6 +56,7 @@ export const {
   connectFailed,
   mintRequest,
   mintSuccess,
+  clearTransaction,
   mintFailed,
   updateAccount
 } = blockchainSlice.actions;
