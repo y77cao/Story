@@ -62,9 +62,13 @@ const MintConfirmation = ({
       {transaction ? (
         <PopupModal
           state={modalState.SUCCESS}
-          message={
-            "Mint successful. Check your transaction on Etherscan and verify your token on Opensea."
-          }
+          message={[
+            "Mint successful. Check your transaction on ",
+            <a href="https://rinkeby.etherscan.io/">Etherscan</a>,
+            " and verify your token on ",
+            <a href="https://opensea.io/account">Opensea</a>,
+            "."
+          ]}
           onClose={() => {
             dispatch(clearTransaction());
             setMintConfirmationVisible(false);
@@ -89,7 +93,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: link on popup, refresh on re-open, tooltip, withdraw funds, tabs app, bottom icon */
+/** TODO: refresh on re-open, withdraw funds, bottom icon, switch tab */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

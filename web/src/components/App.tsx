@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateAccount, initSuccess } from "../redux/blockchainSlice";
+import {
+  updateAccount,
+  initSuccess,
+  fetchData
+} from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import styled from "styled-components";
 import { Menu } from "./Menu";
@@ -10,14 +14,24 @@ import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
 import { toStories } from "../utils";
-import { appError, clearAppError } from "../redux/appSlice";
+import {
+  appError,
+  clearAppError,
+  closeWindow,
+  openWindow
+} from "../redux/appSlice";
+
+export enum WindowType {
+  STORY,
+  ACCOUNT,
+  MANUAL
+}
 
 function App() {
   const dispatch = useDispatch();
   const blockchain = useSelector(state => state.blockchain);
   const app = useSelector(state => state.app);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [activeStory, setActiveStory] = useState(null);
 
   useEffect(() => {
     const initContract = async () => {
@@ -27,13 +41,8 @@ function App() {
         const { provider, contract } = await ContractClient.initContract();
         const contractClient = new ContractClient(provider, contract);
 
-        const pricePerChar = (
-          await contractClient.getPricePerChar()
-        ).toString();
-        const tokens = await contractClient.getAllTokens();
-        const stories = toStories(tokens);
-        dispatch(initSuccess({ contractClient, stories, pricePerChar }));
-
+        dispatch(initSuccess({ contractClient }));
+        dispatch(fetchData());
         ethereum.on("accountsChanged", accounts => {
           dispatch(updateAccount({ account: accounts[0] }));
         });
@@ -60,7 +69,19 @@ function App() {
           parentId={parentId}
           onClick={e => {
             e.preventDefault();
-            setActiveStory({ title: tokens[0].title, parentId });
+            dispatch(
+              openWindow({
+                window: {
+                  id: parentId,
+                  type: WindowType.STORY,
+                  name: `${tokens[0].title}.txt`,
+                  metadata: {
+                    title: tokens[0].title,
+                    parentId
+                  }
+                }
+              })
+            );
           }}
           key={tokens[0].title}
         />
@@ -68,19 +89,57 @@ function App() {
     });
   };
 
+  const renderWindows = () => {
+    return app.windows.map(window => {
+      switch (window.type) {
+        case WindowType.STORY:
+          const {
+            metadata: { title, parentId }
+          } = window;
+          return (
+            <TextEditor
+              id={window.id}
+              title={title}
+              parentId={parentId}
+              onClose={() => dispatch(closeWindow({ windowId: window.id }))}
+            ></TextEditor>
+          );
+
+        case WindowType.ACCOUNT:
+          return null; // TODO
+        case WindowType.MANUAL:
+          return null; // TODO
+      }
+    });
+  };
+
+  const renderTabs = () => {
+    return app.tabs.map(tab => <Tab id={tab.id}>{tab.name}</Tab>);
+  };
+
   return (
     <DesktopContainer>
       <DesktopItemList>
-        <DesktopItem title={"about.txt"} parentId={-1} onClick={() => {}} />
+        <DesktopItem
+          title={"about.txt"}
+          parentId={-1}
+          id={-1}
+          onClick={() => {
+            dispatch(
+              openWindow({
+                window: {
+                  id: -1,
+                  name: "about.txt",
+                  type: WindowType.MANUAL,
+                  metadata: {}
+                }
+              })
+            );
+          }}
+        />
         {blockchain.stories && renderStoryItems()}
       </DesktopItemList>
-      {activeStory && (
-        <TextEditor
-          title={activeStory.title}
-          parentId={activeStory.parentId}
-          setActiveStory={setActiveStory}
-        ></TextEditor>
-      )}
+      {renderWindows()}
       <BottomWrapper>
         {menuVisible && <Menu />}
         <BarWrapper>
@@ -92,7 +151,7 @@ function App() {
           >
             Start
           </StartButton>
-          {blockchain.account && <TabWrapper>{blockchain.account}</TabWrapper>}
+          {renderTabs()}
         </BarWrapper>
       </BottomWrapper>
       {app.errorMsg ? (
@@ -112,7 +171,7 @@ export const StartButton = styled(StyledButton)`
   margin-right: 10px;
 `;
 
-export const TabWrapper = styled(StyledContainer)`
+export const Tab = styled(StyledContainer)`
   padding: 5px 15px;
   cursor: pointer;
   &:hover {

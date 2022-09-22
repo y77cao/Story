@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { ContractClient } from "../clients/contractClient";
-import { appError } from "./appSlice";
+import { appError, openWindow } from "./appSlice";
+import { toStories } from "../utils";
+import { WindowType } from "../components/App";
 
 const initialState = {
   loading: false,
@@ -17,8 +19,6 @@ export const blockchainSlice = createSlice({
   reducers: {
     initSuccess: (state, action) => {
       state.contractClient = action.payload.contractClient;
-      state.stories = action.payload.stories;
-      state.pricePerChar = action.payload.pricePerChar;
     },
     connectRequest: state => {
       state.loading = true;
@@ -27,8 +27,13 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.account = action.payload.account;
     },
-    connectFailed: (state, action) => {
+    fetchDataRequest: state => {
+      state.loading = true;
+    },
+    fetchDataSuccess: (state, action) => {
       state.loading = false;
+      state.stories = action.payload.stories;
+      state.pricePerChar = action.payload.pricePerChar;
     },
     mintRequest: state => {
       state.loading = true;
@@ -40,7 +45,7 @@ export const blockchainSlice = createSlice({
     clearTransaction: state => {
       state.transaction = null;
     }, // TODO might be able to move this to MintConfirmation
-    mintFailed: (state, action) => {
+    error: (state, action) => {
       state.loading = false;
     },
     updateAccount: (state, action) => {
@@ -53,11 +58,12 @@ export const {
   initSuccess,
   connectRequest,
   connectSuccess,
-  connectFailed,
+  fetchDataRequest,
+  fetchDataSuccess,
   mintRequest,
   mintSuccess,
+  error,
   clearTransaction,
-  mintFailed,
   updateAccount
 } = blockchainSlice.actions;
 
@@ -66,6 +72,16 @@ export const connect = () => async dispatch => {
   try {
     const account = await ContractClient.connectWallet();
     dispatch(connectSuccess({ account }));
+    dispatch(
+      openWindow({
+        window: {
+          type: WindowType.ACCOUNT,
+          id: Date.now().toString(),
+          name: account,
+          metadata: {}
+        }
+      })
+    );
   } catch (err) {
     dispatch(appError(err.message));
   }
@@ -84,8 +100,24 @@ export const mint =
         })
       );
     } catch (err) {
+      dispatch(error());
       dispatch(appError(err.message));
     }
   };
+
+export const fetchData = () => async (dispatch, getState) => {
+  dispatch(fetchDataRequest());
+  try {
+    const state = getState();
+    const { contractClient } = state.blockchain;
+    const pricePerChar = (await contractClient.getPricePerChar()).toString();
+    const tokens = await contractClient.getAllTokens();
+    const stories = toStories(tokens);
+    dispatch(fetchDataSuccess({ stories, pricePerChar }));
+  } catch (err) {
+    dispatch(error());
+    dispatch(appError(err.message));
+  }
+};
 
 export default blockchainSlice.reducer;

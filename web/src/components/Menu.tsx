@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { connect } from "../redux/blockchainSlice";
 import styled from "styled-components";
 import Image from "next/image";
-import computer from "../../public/computer.png";
+import arrow from "../../public/arrow.png";
 
 export const Menu = ({}) => {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ export const Menu = ({}) => {
         }}
       >
         <ImageWrapper>
-          <Image src={computer}></Image>
+          <Image src={arrow} width={20} height={20}></Image>
         </ImageWrapper>
         <div>Connect Wallet</div>
       </MenuItem>
@@ -28,7 +28,7 @@ export const Menu = ({}) => {
         }}
       >
         <ImageWrapper>
-          <Image src={computer}></Image>
+          <Image src={arrow} width={20} height={20}></Image>
         </ImageWrapper>
         <div>Withdraw Fund</div>
       </MenuItem>

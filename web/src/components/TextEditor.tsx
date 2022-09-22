@@ -1,24 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
 import { PopupModal, modalState } from "./PopupModal";
+import { TextWithTooltip } from "./TextWithTooltip";
 
-const TextEditor = ({
-  textMetadata,
-  title,
-  parentId,
-  creator,
-  setActiveStory
-}) => {
+const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
+  const inputSpan = useRef();
   const [mintConfirmationVisible, setMintConfirmationVisible] = useState(false);
   const [closeConfirmationVisible, setCloseConfirmationVisible] =
     useState(false);
   const [saved, setSaved] = useState(true);
+
+  useEffect(() => {
+    // @ts-ignore
+    inputSpan.current.focus();
+  }, []);
 
   const validateMint = () => {
     if (input.length > 280)
@@ -53,7 +54,7 @@ const TextEditor = ({
           <HeaderButton
             onClick={e => {
               e.preventDefault();
-              if (saved || !input.length) setActiveStory(null);
+              if (saved || !input.length) onClose();
               else setCloseConfirmationVisible(true);
             }}
           >
@@ -63,7 +64,7 @@ const TextEditor = ({
       </HeaderWrapper>
       <ContentWrapper>
         {textMetadata.map(metadata => (
-          <span>{metadata.text}</span>
+          <TextWithTooltip textMetadata={metadata} />
         ))}
         <StyledInput
           role="textbox"
@@ -74,6 +75,7 @@ const TextEditor = ({
             setInput(e.currentTarget.innerText);
             setSaved(false);
           }}
+          ref={inputSpan}
         >
           {""}
         </StyledInput>
@@ -95,7 +97,7 @@ const TextEditor = ({
           onClose={() => setCloseConfirmationVisible(false)}
           onOk={() => {
             setCloseConfirmationVisible(false);
-            setActiveStory(null);
+            onClose();
           }}
         />
       )}
