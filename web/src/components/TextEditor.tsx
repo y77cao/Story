@@ -6,6 +6,7 @@ import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
 import { PopupModal, modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
+import { WindowHeader } from "./WindowHeader";
 
 const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
   const dispatch = useDispatch();
@@ -39,29 +40,23 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
 
   return (
     <TextEditorWrapper>
-      <HeaderWrapper>
-        <div style={{ margin: "0 4px" }}>{title}</div>
-        <ButtonsWrapper>
-          <HeaderButton
-            onClick={e => {
-              e.preventDefault();
-              if (!input) return;
-              validateMint();
-            }}
-          >
-            💾
-          </HeaderButton>
-          <HeaderButton
-            onClick={e => {
-              e.preventDefault();
-              if (saved || !input.length) onClose();
-              else setCloseConfirmationVisible(true);
-            }}
-          >
-            X
-          </HeaderButton>
-        </ButtonsWrapper>
-      </HeaderWrapper>
+      <WindowHeader
+        title={title}
+        onClickCloseButton={() => {
+          if (saved || !input.length) onClose();
+          else setCloseConfirmationVisible(true);
+        }}
+      >
+        <HeaderButton
+          onClick={e => {
+            e.preventDefault();
+            if (!input) return;
+            validateMint();
+          }}
+        >
+          💾
+        </HeaderButton>
+      </WindowHeader>
       <ContentWrapper>
         {textMetadata.map(metadata => (
           <TextWithTooltip textMetadata={metadata} />
@@ -126,15 +121,6 @@ const TextEditorWrapper = styled(StyledContainer)`
   margin: auto;
   align-items: center;
 `;
-const HeaderWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: grey;
-  color: white;
-`;
 
 const HeaderButton = styled(StyledButton)`
   margin: 2px;
@@ -147,12 +133,6 @@ const ContentWrapper = styled.div`
   display: inline;
   float: left;
   background-color: white;
-`;
-
-const ButtonsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 `;
 
 const StyledInput = styled.span`

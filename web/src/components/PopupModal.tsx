@@ -5,6 +5,7 @@ import error from "../../public/error.png";
 import warning from "../../public/warning.png";
 import success from "../../public/success.png";
 import { StyledButton, StyledContainer } from "../styles/globalStyles";
+import { WindowHeader } from "./WindowHeader";
 
 export enum modalState {
   ERROR,
@@ -34,17 +35,7 @@ export const PopupModal = ({ state, message, onClose, onOk }) => {
   const { icon, title } = getIconAndTitle(state);
   return (
     <PopupModalWrapper>
-      <HeaderWrapper>
-        <div style={{ margin: "0 4px" }}>{title}</div>
-        <CloseButton
-          onClick={e => {
-            e.preventDefault();
-            onClose();
-          }}
-        >
-          x
-        </CloseButton>
-      </HeaderWrapper>
+      <WindowHeader title={title} onClickCloseButton={onClose}></WindowHeader>
       <ContentWrapper>
         {icon}
         <div style={{ textAlign: "left", width: "300px" }}>{message}</div>
@@ -76,18 +67,7 @@ const PopupModalWrapper = styled(StyledContainer)`
   justify-content: space-between;
   z-index: 999;
 `;
-const HeaderWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: grey;
-  color: white;
-`;
-const CloseButton = styled(StyledButton)`
-  margin: 2px;
-`;
+
 const ContentWrapper = styled.div`
   width: 100%;
   display: flex;

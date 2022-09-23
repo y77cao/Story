@@ -10,7 +10,7 @@ async function main() {
 
   // We get the contract to deploy
   const Story = await hre.ethers.getContractFactory("Story");
-  const story = await Story.deploy(500);
+  const story = await Story.deploy();
 
   await story.deployed();
 
@@ -19,7 +19,7 @@ async function main() {
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });

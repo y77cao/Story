@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Image from "next/image";
+import styled from "styled-components";
 
 import {
   updateAccount,
   initSuccess,
-  fetchData
+  fetchData,
+  connect
 } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
-import styled from "styled-components";
 import { Menu } from "./Menu";
 import { PopupModal, modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
 import { DesktopItem } from "./DesktopItem";
-import { toStories } from "../utils";
 import {
   appError,
   clearAppError,
   closeWindow,
   openWindow
 } from "../redux/appSlice";
+import arrow from "../../public/arrow.png";
+import WithdrawFund from "./WithdrawFund";
 
 export enum WindowType {
   STORY,
-  ACCOUNT,
+  WITHDRAW_FUND,
   MANUAL
 }
 
@@ -89,6 +92,48 @@ function App() {
     });
   };
 
+  const renderMenu = () => {
+    if (!menuVisible) return null;
+    return (
+      <MenuWrapper>
+        <MenuItem
+          onClick={e => {
+            e.preventDefault();
+            dispatch(
+              openWindow({
+                window: {
+                  id: "withdraw-fund",
+                  name: "Check Balance / Withdraw Fund",
+                  type: WindowType.WITHDRAW_FUND,
+                  metadata: {}
+                }
+              })
+            );
+            toggleMenu();
+          }}
+        >
+          <ImageWrapper>
+            <Image src={arrow} width={20} height={20}></Image>
+          </ImageWrapper>
+          <MenuInnerText>Check Balance / Withdraw Fund</MenuInnerText>
+        </MenuItem>
+        <MenuItem
+          onClick={e => {
+            e.preventDefault();
+            if (!blockchain.account) dispatch(connect());
+          }}
+        >
+          <ImageWrapper>
+            <Image src={arrow} width={20} height={20}></Image>
+          </ImageWrapper>
+          <MenuInnerText>
+            {blockchain.account ? blockchain.account : "Connect Wallet"}
+          </MenuInnerText>
+        </MenuItem>
+      </MenuWrapper>
+    );
+  };
+
   const renderWindows = () => {
     return app.windows.map(window => {
       switch (window.type) {
@@ -105,8 +150,12 @@ function App() {
             ></TextEditor>
           );
 
-        case WindowType.ACCOUNT:
-          return null; // TODO
+        case WindowType.WITHDRAW_FUND:
+          return (
+            <WithdrawFund
+              onClose={() => dispatch(closeWindow({ windowId: window.id }))}
+            />
+          );
         case WindowType.MANUAL:
           return null; // TODO
       }
@@ -123,12 +172,11 @@ function App() {
         <DesktopItem
           title={"about.txt"}
           parentId={-1}
-          id={-1}
           onClick={() => {
             dispatch(
               openWindow({
                 window: {
-                  id: -1,
+                  id: "manual",
                   name: "about.txt",
                   type: WindowType.MANUAL,
                   metadata: {}
@@ -141,7 +189,7 @@ function App() {
       </DesktopItemList>
       {renderWindows()}
       <BottomWrapper>
-        {menuVisible && <Menu />}
+        {renderMenu()}
         <BarWrapper>
           <StartButton
             onClick={e => {
@@ -211,6 +259,41 @@ const DesktopContainer = styled.div`
   height: 100%;
   height: 100vh;
   width: 100vw;
+`;
+
+const MenuWrapper = styled.div`
+  width: 350px;
+  background-color: lightgrey;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+  border-right: 1px solid gray;
+  border-bottom: 1px solid gray;
+  box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
+  position: relative;
+  z-index: 99;
+`;
+
+const MenuItem = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  &:hover {
+    background-color: darkgrey;
+  }
+  cursor: pointer;
+`;
+
+const MenuInnerText = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 70%;
+`;
+
+const ImageWrapper = styled.div`
+  margin: 10px;
 `;
 
 export default App;

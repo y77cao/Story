@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import { estimatedMintCost } from "../utils";
 import { PopupModal, modalState } from "./PopupModal";
+import { WindowHeader } from "./WindowHeader";
 
 const MintConfirmation = ({
   text,
@@ -21,17 +22,10 @@ const MintConfirmation = ({
 
   return (
     <MintConfirmationWrapper>
-      <HeaderWrapper>
-        <div style={{ margin: "0 4px" }}>Confirm</div>
-        <HeaderButton
-          onClick={e => {
-            e.preventDefault();
-            setMintConfirmationVisible(false);
-          }}
-        >
-          X
-        </HeaderButton>
-      </HeaderWrapper>
+      <WindowHeader
+        title={"Confirm"}
+        onClickCloseButton={() => setMintConfirmationVisible(false)}
+      ></WindowHeader>
       <ContentWrapper>
         <MintPreview {...{ text, parentId, creator }} />
         <Text>
@@ -64,7 +58,7 @@ const MintConfirmation = ({
           state={modalState.SUCCESS}
           message={[
             "Mint successful. Check your transaction on ",
-            <a href="https://rinkeby.etherscan.io/">Etherscan</a>,
+            <a href={`${process.env.NEXT_ETHERSCAN_URL}`}>Etherscan</a>,
             " and verify your token on ",
             <a href="https://opensea.io/account">Opensea</a>,
             "."
@@ -93,7 +87,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: refresh on re-open, withdraw funds, bottom icon, switch tab */
+/** TODO: refresh on re-open, bottom icon, switch tab */
 
 export default connect(mapStateToProps)(MintConfirmation);
 
@@ -110,21 +104,7 @@ const MintConfirmationWrapper = styled(StyledContainer)`
   margin: auto;
   align-items: center;
 `;
-const HeaderWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: grey;
-  color: white;
-`;
 
-const HeaderButton = styled(StyledButton)`
-  margin: 2px;
-  width: 35px;
-  height: 25px;
-`;
 const ContentWrapper = styled.div`
   width: 100%;
   height: 100%;

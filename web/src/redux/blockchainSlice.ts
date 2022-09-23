@@ -2,15 +2,16 @@ import { createSlice } from "@reduxjs/toolkit";
 import { ContractClient } from "../clients/contractClient";
 import { appError, openWindow } from "./appSlice";
 import { toStories } from "../utils";
-import { WindowType } from "../components/App";
+import { BigNumber } from "ethers";
 
 const initialState = {
   loading: false,
   account: null,
   contractClient: null,
   stories: null,
-  pricePerChar: 0,
-  transaction: null
+  pricePerChar: BigNumber.from(0),
+  transaction: null,
+  tokenIdWithBalance: {}
 };
 
 export const blockchainSlice = createSlice({
@@ -34,6 +35,21 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.stories = action.payload.stories;
       state.pricePerChar = action.payload.pricePerChar;
+    },
+    checkBalanceRequest: state => {
+      state.loading = true;
+    },
+    checkBalanceSuccess: (state, action) => {
+      state.loading = false;
+      state.tokenIdWithBalance = action.payload;
+    },
+    withdrawFundRequest: state => {
+      state.loading = true;
+    },
+    withdrawFundSuccess: (state, action) => {
+      state.loading = false;
+      state.tokenIdWithBalance.balance = BigNumber.from(0);
+      state.transaction = action.payload.transaction;
     },
     mintRequest: state => {
       state.loading = true;
@@ -60,6 +76,10 @@ export const {
   connectSuccess,
   fetchDataRequest,
   fetchDataSuccess,
+  checkBalanceRequest,
+  checkBalanceSuccess,
+  withdrawFundRequest,
+  withdrawFundSuccess,
   mintRequest,
   mintSuccess,
   error,
@@ -72,17 +92,8 @@ export const connect = () => async dispatch => {
   try {
     const account = await ContractClient.connectWallet();
     dispatch(connectSuccess({ account }));
-    dispatch(
-      openWindow({
-        window: {
-          type: WindowType.ACCOUNT,
-          id: Date.now().toString(),
-          name: account,
-          metadata: {}
-        }
-      })
-    );
   } catch (err) {
+    dispatch(error());
     dispatch(appError(err.message));
   }
 };
@@ -110,7 +121,7 @@ export const fetchData = () => async (dispatch, getState) => {
   try {
     const state = getState();
     const { contractClient } = state.blockchain;
-    const pricePerChar = (await contractClient.getPricePerChar()).toString();
+    const pricePerChar = await contractClient.getPricePerChar();
     const tokens = await contractClient.getAllTokens();
     const stories = toStories(tokens);
     dispatch(fetchDataSuccess({ stories, pricePerChar }));
@@ -119,5 +130,36 @@ export const fetchData = () => async (dispatch, getState) => {
     dispatch(appError(err.message));
   }
 };
+
+export const checkBalance = tokenId => async (dispatch, getState) => {
+  dispatch(checkBalanceRequest());
+  try {
+    const state = getState();
+    const { contractClient } = state.blockchain;
+    const balance = await contractClient.getBalanceOf(BigNumber.from(tokenId));
+    dispatch(checkBalanceSuccess({ tokenId, balance }));
+  } catch (err) {
+    dispatch(error());
+    dispatch(appError(err.message));
+  }
+};
+
+export const withdrawFund =
+  (tokenId, balance) => async (dispatch, getState) => {
+    dispatch(withdrawFundRequest());
+    try {
+      const state = getState();
+      const { contractClient } = state.blockchain;
+      const txn = await contractClient.withdraw(tokenId, balance);
+      dispatch(
+        withdrawFundSuccess({
+          transaction: txn
+        })
+      );
+    } catch (err) {
+      dispatch(error());
+      dispatch(appError(err.message));
+    }
+  };
 
 export default blockchainSlice.reducer;

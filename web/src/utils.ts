@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 
 export const toStories = tokens => {
   const stories = {};
@@ -18,10 +18,11 @@ export const toStories = tokens => {
   return stories;
 };
 
-export const estimatedMintCost = (charCount, pricePerChar): string => {
-  return ethers.utils.formatUnits(
-    (BigInt(charCount) * BigInt(pricePerChar)).toString()
-  );
+export const estimatedMintCost = (
+  charCount: number,
+  pricePerChar: BigNumber
+): string => {
+  return ethers.utils.formatUnits(BigNumber.from(charCount).mul(pricePerChar));
 };
 
 export const toEther = amountInWei => {
