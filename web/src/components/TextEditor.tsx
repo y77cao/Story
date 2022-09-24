@@ -50,6 +50,8 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
         <HeaderButton
           onClick={e => {
             e.preventDefault();
+            // @ts-ignore
+            inputSpan.current.blur();
             if (!input) return;
             validateMint();
           }}
@@ -65,7 +67,6 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
           role="textbox"
           contentEditable={true}
           autoFocus={true}
-          onBlur={({ target }) => target.focus()}
           onInput={e => {
             setInput(e.currentTarget.innerText);
             setSaved(false);
@@ -101,7 +102,7 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-  textMetadata: state.blockchain.stories[ownProps.parentId],
+  textMetadata: state.blockchain.stories[ownProps.parentId] || [],
   creator: state.blockchain.account,
   ...ownProps
 });

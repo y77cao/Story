@@ -73,8 +73,14 @@ export class ContractClient {
     return txn;
   }
 
+  async getNumberOfOwnedTokens(account): Promise<BigNumber> {
+    return this.contract.balanceOf(account);
+  }
+
   async mint(text: string, parentId: number) {
-    // TODO boundary check
+    if (!text || !text.length || text.length > 280) {
+      throw new Error("Invalid text length");
+    }
     const signer = this.provider.getSigner();
     const contractWithSigner = this.contract.connect(signer);
     const pricePerChar = await this.getPricePerChar();
@@ -88,7 +94,13 @@ export class ContractClient {
   }
 
   async mintWithTitle(title: string, text: string) {
-    // TODO boundary check
+    // TODO make constant
+    if (!title || !title.length || title.length > 32) {
+      throw new Error("Invalid title length");
+    }
+    if (!text || !text.length || text.length > 280) {
+      throw new Error("Invalid text length");
+    }
     const signer = this.provider.getSigner();
     const contractWithSigner = this.contract.connect(signer);
     const pricePerChar = await this.getPricePerChar();

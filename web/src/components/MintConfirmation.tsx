@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { MintPreview } from "./MintPreview";
-import { mint, clearTransaction } from "../redux/blockchainSlice";
+import {
+  mint,
+  mintWithTitle,
+  clearTransaction
+} from "../redux/blockchainSlice";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import { estimatedMintCost } from "../utils";
@@ -19,6 +23,7 @@ const MintConfirmation = ({
   setSaved
 }) => {
   const dispatch = useDispatch();
+  const [newTitle, setNewTitle] = useState("");
 
   return (
     <MintConfirmationWrapper>
@@ -28,6 +33,12 @@ const MintConfirmation = ({
       ></WindowHeader>
       <ContentWrapper>
         <MintPreview {...{ text, parentId, creator }} />
+        {parentId === -1 ? (
+          <div>
+            New story title:{" "}
+            <input onChange={e => setNewTitle(e.target.value)}></input>
+          </div>
+        ) : null}
         <Text>
           Saving this snippet will mint an ERC721 token on Ethereum with all
           data on-chain. The mint cost will be $
@@ -46,7 +57,9 @@ const MintConfirmation = ({
           <ContentButton
             onClick={e => {
               e.preventDefault();
-              dispatch(mint(text, parentId));
+              parentId === -1
+                ? dispatch(mint(text, parentId))
+                : dispatch(mintWithTitle(newTitle, text));
             }}
           >
             Confirm
@@ -87,7 +100,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: refresh on re-open, bottom icon, switch tab */
+/** TODO: bottom icon, write new story, switch tab */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

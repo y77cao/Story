@@ -9,7 +9,6 @@ import {
   withdrawFund,
   clearTransaction
 } from "../redux/blockchainSlice";
-import { BigNumber } from "ethers";
 import { toEther } from "../utils";
 
 const WithdrawFund = ({ onClose, balance, transaction }) => {

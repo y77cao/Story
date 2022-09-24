@@ -11,7 +11,8 @@ const initialState = {
   stories: null,
   pricePerChar: BigNumber.from(0),
   transaction: null,
-  tokenIdWithBalance: {}
+  tokenIdWithBalance: {},
+  numberOfOwnedTokens: null
 };
 
 export const blockchainSlice = createSlice({
@@ -27,6 +28,7 @@ export const blockchainSlice = createSlice({
     connectSuccess: (state, action) => {
       state.loading = false;
       state.account = action.payload.account;
+      state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
     },
     fetchDataRequest: state => {
       state.loading = true;
@@ -35,6 +37,7 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.stories = action.payload.stories;
       state.pricePerChar = action.payload.pricePerChar;
+      state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
     },
     checkBalanceRequest: state => {
       state.loading = true;
@@ -87,11 +90,16 @@ export const {
   updateAccount
 } = blockchainSlice.actions;
 
-export const connect = () => async dispatch => {
+export const connect = () => async (dispatch, getState) => {
   dispatch(connectRequest());
   try {
+    const state = getState();
+    const { contractClient } = state.blockchain;
     const account = await ContractClient.connectWallet();
-    dispatch(connectSuccess({ account }));
+    const numberOfOwnedTokens = (
+      await contractClient.getNumberOfOwnedTokens(account)
+    ).toNumber();
+    dispatch(connectSuccess({ account, numberOfOwnedTokens }));
   } catch (err) {
     dispatch(error());
     dispatch(appError(err.message));
@@ -116,15 +124,36 @@ export const mint =
     }
   };
 
+export const mintWithTitle =
+  (title: string, text: string) => async (dispatch, getState) => {
+    dispatch(mintRequest());
+    try {
+      const state = getState();
+      const { contractClient } = state.blockchain;
+      const txn = await contractClient.mintWithTitle(title, text);
+      dispatch(
+        mintSuccess({
+          transaction: txn
+        })
+      );
+    } catch (err) {
+      dispatch(error());
+      dispatch(appError(err.message));
+    }
+  };
+
 export const fetchData = () => async (dispatch, getState) => {
   dispatch(fetchDataRequest());
   try {
     const state = getState();
-    const { contractClient } = state.blockchain;
+    const { contractClient, account } = state.blockchain;
     const pricePerChar = await contractClient.getPricePerChar();
     const tokens = await contractClient.getAllTokens();
     const stories = toStories(tokens);
-    dispatch(fetchDataSuccess({ stories, pricePerChar }));
+    const numberOfOwnedTokens = account
+      ? (await contractClient.getNumberOfOwnedTokens(account)).toNumber()
+      : null;
+    dispatch(fetchDataSuccess({ stories, pricePerChar, numberOfOwnedTokens }));
   } catch (err) {
     dispatch(error());
     dispatch(appError(err.message));

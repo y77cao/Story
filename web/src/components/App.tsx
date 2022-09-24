@@ -85,6 +85,7 @@ function App() {
                 }
               })
             );
+            dispatch(fetchData());
           }}
           key={tokens[0].title}
         />
@@ -96,6 +97,32 @@ function App() {
     if (!menuVisible) return null;
     return (
       <MenuWrapper>
+        {blockchain.numberOfOwnedTokens >= 1 ? ( // TODO use onchain var
+          <MenuItem
+            onClick={e => {
+              e.preventDefault();
+              dispatch(
+                openWindow({
+                  window: {
+                    id: "new-story",
+                    name: "untitled.txt",
+                    type: WindowType.STORY,
+                    metadata: {
+                      title: "untitled.txt",
+                      parentId: -1
+                    }
+                  }
+                })
+              );
+              toggleMenu();
+            }}
+          >
+            <ImageWrapper>
+              <Image src={arrow} width={20} height={20}></Image>
+            </ImageWrapper>
+            <MenuInnerText>New Story</MenuInnerText>
+          </MenuItem>
+        ) : null}
         <MenuItem
           onClick={e => {
             e.preventDefault();
