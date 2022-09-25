@@ -64,7 +64,7 @@ export const blockchainSlice = createSlice({
     clearTransaction: state => {
       state.transaction = null;
     }, // TODO might be able to move this to MintConfirmation
-    error: (state, action) => {
+    error: state => {
       state.loading = false;
     },
     updateAccount: (state, action) => {
@@ -137,6 +137,7 @@ export const mintWithTitle =
         })
       );
     } catch (err) {
+      console.log(err);
       dispatch(error());
       dispatch(appError(err.message));
     }

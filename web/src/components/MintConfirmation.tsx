@@ -58,8 +58,8 @@ const MintConfirmation = ({
             onClick={e => {
               e.preventDefault();
               parentId === -1
-                ? dispatch(mint(text, parentId))
-                : dispatch(mintWithTitle(newTitle, text));
+                ? dispatch(mintWithTitle(newTitle, text))
+                : dispatch(mint(text, parentId));
             }}
           >
             Confirm
@@ -100,7 +100,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, write new story, switch tab */
+/** TODO: bottom icon, switch tab, parse on chain error */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

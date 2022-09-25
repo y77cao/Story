@@ -48,6 +48,7 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
         }}
       >
         <HeaderButton
+          disabled={saved}
           onClick={e => {
             e.preventDefault();
             // @ts-ignore

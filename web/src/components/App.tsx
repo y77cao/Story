@@ -10,7 +10,6 @@ import {
   connect
 } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
-import { Menu } from "./Menu";
 import { PopupModal, modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
@@ -19,7 +18,8 @@ import {
   appError,
   clearAppError,
   closeWindow,
-  openWindow
+  openWindow,
+  switchWindow
 } from "../redux/appSlice";
 import arrow from "../../public/arrow.png";
 import WithdrawFund from "./WithdrawFund";
@@ -97,7 +97,7 @@ function App() {
     if (!menuVisible) return null;
     return (
       <MenuWrapper>
-        {blockchain.numberOfOwnedTokens >= 1 ? ( // TODO use onchain var
+        {blockchain.numberOfOwnedTokens >= 10 ? ( // TODO use onchain var
           <MenuItem
             onClick={e => {
               e.preventDefault();
@@ -190,7 +190,14 @@ function App() {
   };
 
   const renderTabs = () => {
-    return app.tabs.map(tab => <Tab id={tab.id}>{tab.name}</Tab>);
+    return app.tabs.map(tab => (
+      <Tab
+        id={tab.id}
+        onClick={() => dispatch(switchWindow({ windowId: tab.id }))}
+      >
+        {tab.name}
+      </Tab>
+    ));
   };
 
   return (

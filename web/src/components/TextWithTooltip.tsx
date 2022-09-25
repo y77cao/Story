@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { toEther } from "../utils";
 
 export const TextWithTooltip = ({ textMetadata }) => {
   const [hover, setHover] = useState(false);

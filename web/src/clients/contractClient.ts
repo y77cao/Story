@@ -108,7 +108,7 @@ export class ContractClient {
     const titleBytes = ethers.utils.formatBytes32String(title);
     const textBytes = ethers.utils.toUtf8Bytes(text);
     const txn = await contractWithSigner.mintWithTitle(titleBytes, textBytes, {
-      value: ethers.utils.parseEther(`${mintCost}`)
+      value: mintCost
     });
     await txn.wait();
     return txn;

@@ -28,3 +28,5 @@ export const estimatedMintCost = (
 export const toEther = amountInWei => {
   return ethers.utils.formatUnits(amountInWei);
 };
+
+export const parseOnChainError = error => {};
