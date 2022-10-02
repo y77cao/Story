@@ -7,6 +7,7 @@ export const MintPreview = ({ text, parentId, creator }) => {
     `<rect width="100%" height="100%" fill="black" /><text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">${text}</text>` +
     `<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">-- ${creator}</text></svg>`;
   // TODO: break lines and restricts to 1 sentence and sanitize white space. base64 is incapable of white spaces
+  console.log(`url("data:image/svg+xml;base64,${btoa(svgString)}")`);
   return (
     <div
       style={{

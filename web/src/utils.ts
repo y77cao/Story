@@ -30,3 +30,20 @@ export const toEther = amountInWei => {
 };
 
 export const parseOnChainError = error => {};
+
+export const wordWrap = (str, charMax) => {
+  let arr = [];
+  let space = /\s+/;
+
+  const words = str.trim().split(space);
+  arr.push(words[0]);
+  for (let i = 1; i < words.length; i++) {
+    if (words[i].length + arr[arr.length - 1].length < charMax) {
+      arr[arr.length - 1] = `${arr[arr.length - 1]} ${words[i]}`;
+    } else {
+      arr.push(words[i]);
+    }
+  }
+
+  return arr;
+};

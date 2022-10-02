@@ -1,23 +1,32 @@
 //SPDX-License-Identifier: MIT
 //Contract based on [https://docs.openzeppelin.com/contracts/3.x/erc721](https://docs.openzeppelin.com/contracts/3.x/erc721)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-import "./StringUtils.sol";
+import "./StoryStringUtils.sol";
 import "./ENSNameResolver.sol";
+
+error NonEOASender();
+error InvalidText();
+error TextWithoutParent();
+error IncorrectEthValue();
+error TokenNotExist();
+error MoreTextMintRequired();
+error InsufficientBalance();
+error UnauthorizedWithdraw();
+error WithdrawFailed();
+error NonExistentToken();
 
 contract Story is ERC721, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
-    uint256 public constant pricePerChar = 0.005 ether;
-    uint256 public constant maxCharsPerMint = 280;
+    uint256 public constant pricePerChar = 0.0005 ether;
     uint256 public constant numberOfMintRequiredToStartStory = 10;
 
     struct TokenMetadata {
@@ -32,12 +41,6 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
 
     TokenMetadata[] mintedTokens;
 
-    // ============ ACCESS CONTROL/SANITY MODIFIERS ============
-    modifier tokenExists(uint256 tokenId) {
-      require(_exists(tokenId), "Nonexistent token");
-      _;
-    }
-
     constructor() ERC721("Story", "STORY") {}
 
     // ============ PUBLIC FUNCTIONS ============
@@ -46,17 +49,14 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         external
         payable
         nonReentrant
-        tokenExists(parentId)
         returns (uint256)
     {
-        uint256 textCharCount = StringUtils.strlen(text);
-        require(textCharCount <= maxCharsPerMint, "Number of characters exceeds limit");
-        require(
-            pricePerChar * textCharCount == msg.value,
-            "Incorrect ETH value sent"
-        );
-        require(mintedTokens[parentId].isBeginning, "Text must belong to a story");
-        if (tx.origin != msg.sender) revert();
+        uint256 textCharCount = StoryStringUtils.strlen(text);
+        if (!_exists(parentId)) revert NonExistentToken();
+        if (!StoryStringUtils.validate(text)) revert InvalidText();
+        if (pricePerChar * textCharCount != msg.value) revert IncorrectEthValue();
+        if (!mintedTokens[parentId].isBeginning) revert TextWithoutParent();
+        if (tx.origin != msg.sender) revert NonEOASender();
 
         uint256 nextId = mintedTokens.length;
         mintedTokens.push(TokenMetadata({creator: msg.sender, 
@@ -77,18 +77,15 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         nonReentrant
         returns (uint256)
     {
-        uint256 textCharCount = StringUtils.strlen(text);
-        require(textCharCount <= maxCharsPerMint, "Number of characters exceeds limit");
-        require(
-            pricePerChar * textCharCount == msg.value,
-            "Incorrect ETH value sent"
-        );
-        if (tx.origin != msg.sender) revert();
+        uint256 textCharCount = StoryStringUtils.strlen(text);
+        if (!StoryStringUtils.validate(text)) revert InvalidText();
+        if (pricePerChar * textCharCount != msg.value) revert IncorrectEthValue();
+        if (tx.origin != msg.sender) revert NonEOASender();
 
         uint256 nextId = mintedTokens.length;
         if (nextId != 0) {
            uint256 numberOfStoriesOwned = balanceOf(msg.sender);
-           require(numberOfStoriesOwned >= numberOfMintRequiredToStartStory, "Must write more before starting your own");
+           if (numberOfStoriesOwned < numberOfMintRequiredToStartStory) revert MoreTextMintRequired();
         }
         mintedTokens.push(TokenMetadata({creator: msg.sender, 
                                                  isBeginning: true,
@@ -103,27 +100,28 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     }
 
     function withdraw(uint256 tokenId, uint256 amount) public {
-      require(getBalanceOf(tokenId) >= amount, "Insufficient balance");
-      require(ownerOf(tokenId) == msg.sender, "Unauthorized attempt to withdraw");
+      if (getBalanceOf(tokenId) < amount) revert InsufficientBalance();
+      if (ownerOf(tokenId)!= msg.sender) revert UnauthorizedWithdraw();
 
       TokenMetadata storage metadata = mintedTokens[tokenId];
       metadata.withdrawn += amount;
 
       mintedTokens[tokenId] = metadata;
       (bool sent,) = (msg.sender).call{value: amount}("");
-      require(sent, "Failed to withdraw");
+      if (!sent) revert WithdrawFailed();
     }
 
     // ============ PUBLIC READ-ONLY FUNCTIONS ============
     function getMintPrice(uint256 numberOfChars) external pure returns (uint256) {
-        return SafeMath.mul(numberOfChars, pricePerChar);
+        return numberOfChars * pricePerChar;
     }
 
-    function getBalanceOf(uint256 tokenId) public view tokenExists(tokenId) returns (uint256) {
+    function getBalanceOf(uint256 tokenId) public view returns (uint256) {
+      if (!_exists(tokenId)) revert NonExistentToken();
       uint256 balance = 0;
       TokenMetadata memory metadata = mintedTokens[tokenId];
       for (uint256 i = tokenId; i < mintedTokens.length; i++) {
-        balance += (mintedTokens[i].amount / (i+1)); // TODO safemath
+        balance += (mintedTokens[i].amount / (i + 1));
       }
 
       return balance - metadata.withdrawn;
@@ -133,11 +131,8 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return mintedTokens;
     }
 
-    function nextTokenId() private view returns (uint256) {
-        return mintedTokens.length;
-    }
-
-    function tokenURI(uint256 tokenId) public view override tokenExists(tokenId) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    if (!_exists(tokenId)) revert NonExistentToken();
     return string(
         abi.encodePacked(
             "data:application/json;base64,",
@@ -154,7 +149,8 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     );
 }
 
-   function generateSvg(uint256 tokenId) public view tokenExists(tokenId) returns (string memory) {
+   function generateSvg(uint256 tokenId) public view returns (string memory) {
+       if (!_exists(tokenId)) revert NonExistentToken();
        TokenMetadata memory metadata = mintedTokens[tokenId];
        bytes memory svg = abi.encodePacked(
         '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
@@ -173,13 +169,26 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     );
    }
 
-   function getTokenAttributes(uint256 tokenId) public view tokenExists(tokenId) returns (bytes memory) {
+   function generateTextSvg(bytes memory text) public pure returns (string memory) {
+       string[] memory wrappedText = StoryStringUtils.textWrap(text);
+       bytes memory svg = abi.encodePacked('');
+       for (uint i = 0; i < wrappedText.length; i++) {
+           svg = abi.encodePacked(svg, 
+           '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
+           );
+       }
+
+       return string(svg);
+   }
+
+   function getTokenAttributes(uint256 tokenId) public view returns (bytes memory) {
+       if (!_exists(tokenId)) revert NonExistentToken();
        TokenMetadata memory metadata = mintedTokens[tokenId];
        return abi.encodePacked(
         '[{"trait_type":"Author", "value": ',
         getAuthor(tokenId, metadata.creator),
         '}, {"trait_type":"Word Count", "value": "',
-        StringUtils.strlen(metadata.text).toString(),
+        StoryStringUtils.strlen(metadata.text).toString(),
         '"}]'
         // TODO title, date
       );
@@ -188,11 +197,14 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
    function getAuthor(
     uint256 tokenId,
     address ownerAddress
-  ) internal view tokenExists(tokenId) returns (string memory) {
+  ) internal view returns (string memory) {
+    if (!_exists(tokenId)) revert NonExistentToken();
     string memory authorEns = ''; // ENSNameResolver.lookupENSName(ownerAddress);
     return
         bytes(authorEns).length > 0
           ? authorEns
-          : string(abi.encodePacked('0x', StringUtils.toAsciiString(ownerAddress)));
+          : string(abi.encodePacked('0x', StoryStringUtils.toAsciiString(ownerAddress)));
   }
 }
+
+// TODO svg break line, title, new story every 10 mint

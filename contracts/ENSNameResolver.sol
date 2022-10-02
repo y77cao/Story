@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 interface IDefaultResolver {
     function name(bytes32 node) external view returns (string memory);
