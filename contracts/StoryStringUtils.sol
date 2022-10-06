@@ -43,21 +43,20 @@ library StoryStringUtils {
             parts[i] = sl.split(delim);
         }
 
-        uint256[] memory endInds = new uint256[](
-            strlen(s) / MAX_CHARS_PER_LINE + 1
-        );
+        uint256 lines = strlen(s) / MAX_CHARS_PER_LINE + 1;
+        uint256[] memory endInds = new uint256[](lines);
         endInds[0] = parts[0].len();
         uint16 currLineNumber = 0;
+
         for (uint16 i = 1; i < parts.length; i++) {
             uint256 partLen = parts[i].len();
-            if (partLen + endInds[currLineNumber] + 1 < MAX_CHARS_PER_LINE) {
+            if (partLen + endInds[currLineNumber] + 1 <= MAX_CHARS_PER_LINE) {
                 endInds[currLineNumber] += partLen + 1;
             } else {
-                uint256 baseInd = currLineNumber == 0
-                    ? 0
-                    : endInds[currLineNumber - 1];
-                endInds[currLineNumber] += baseInd; // add all previous chars
                 currLineNumber++;
+                if (currLineNumber < lines)
+                    endInds[currLineNumber] += partLen + 1;
+                else endInds[currLineNumber - 1] += partLen + 1;
             }
         }
 
@@ -66,10 +65,12 @@ library StoryStringUtils {
         string[] memory wrappedText = new string[](
             strlen(s) / MAX_CHARS_PER_LINE + 1
         );
+        uint256 startIndex = 0;
+        uint256 endIndex = 0;
         for (uint16 i = 0; i < endInds.length; i++) {
-            uint256 startIndex = i == 0 ? 0 : endInds[i - 1];
-            uint256 endIndex = i == endInds.length - 1 ? strlen(s) : endInds[i];
+            endIndex += endInds[i];
             wrappedText[i] = substring(s, startIndex, endIndex);
+            startIndex = endIndex;
         }
 
         return wrappedText;

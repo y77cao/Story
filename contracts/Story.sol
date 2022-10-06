@@ -78,14 +78,14 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         returns (uint256)
     {
         uint256 textCharCount = StoryStringUtils.strlen(text);
+        if (!StoryStringUtils.validate(bytes.concat(title))) revert InvalidText();
         if (!StoryStringUtils.validate(text)) revert InvalidText();
         if (pricePerChar * textCharCount != msg.value) revert IncorrectEthValue();
         if (tx.origin != msg.sender) revert NonEOASender();
 
         uint256 nextId = mintedTokens.length;
-        if (nextId != 0) {
-           uint256 numberOfStoriesOwned = balanceOf(msg.sender);
-           if (numberOfStoriesOwned < numberOfMintRequiredToStartStory) revert MoreTextMintRequired();
+        if (!canMintWithTitle(nextId)) {
+        revert MoreTextMintRequired();
         }
         mintedTokens.push(TokenMetadata({creator: msg.sender, 
                                                  isBeginning: true,
@@ -112,6 +112,15 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     }
 
     // ============ PUBLIC READ-ONLY FUNCTIONS ============
+    function canMintWithTitle(uint nextTokenId) public view returns (bool) {
+        // only owner can start this game :/
+        if (nextTokenId == 0) return owner() == address(msg.sender);
+ 
+        uint256 numberOfStoriesOwned = balanceOf(msg.sender);
+        if (numberOfStoriesOwned < numberOfMintRequiredToStartStory) return false;
+        return true;
+    }
+
     function getMintPrice(uint256 numberOfChars) external pure returns (uint256) {
         return numberOfChars * pricePerChar;
     }
@@ -156,7 +165,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
         '<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>',
         '<rect width="100%" height="100%" fill="black" />',
-        '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">', string(metadata.text), '</text>',
+        generateTextSvg(metadata.text),
         '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">', "--", getAuthor(tokenId, metadata.creator),'</text>',
         // TODO title, date
         '</svg>'
@@ -172,10 +181,12 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
    function generateTextSvg(bytes memory text) public pure returns (string memory) {
        string[] memory wrappedText = StoryStringUtils.textWrap(text);
        bytes memory svg = abi.encodePacked('');
+       uint textPos = 20;
        for (uint i = 0; i < wrappedText.length; i++) {
            svg = abi.encodePacked(svg, 
-           '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
+           '<text x="50%" y="', textPos.toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
            );
+           textPos += 10;
        }
 
        return string(svg);
@@ -207,4 +218,4 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
   }
 }
 
-// TODO svg break line, title, new story every 10 mint
+// TODO title, new story every 10 mint
