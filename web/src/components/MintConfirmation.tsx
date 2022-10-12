@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { MintPreview } from "./MintPreview";
 import {
   mint,
   mintWithTitle,
@@ -15,10 +14,10 @@ import { WindowHeader } from "./WindowHeader";
 const MintConfirmation = ({
   text,
   parentId,
-  creator,
   pricePerChar,
   loading,
   transaction,
+  svgString,
   setMintConfirmationVisible,
   setSaved
 }) => {
@@ -32,7 +31,13 @@ const MintConfirmation = ({
         onClickCloseButton={() => setMintConfirmationVisible(false)}
       ></WindowHeader>
       <ContentWrapper>
-        <MintPreview {...{ text, parentId, creator }} />
+        <MintPreview
+          style={{
+            backgroundImage: `url("${svgString}")`,
+            width: "300px",
+            height: "300px"
+          }}
+        />
         {parentId === -1 ? (
           <div>
             New story title:{" "}
@@ -97,10 +102,11 @@ const mapStateToProps = (state, ownProps) => ({
   pricePerChar: state.blockchain.pricePerChar,
   loading: state.blockchain.loading,
   transaction: state.blockchain.transaction,
+  svgString: state.blockchain.svgString,
   ...ownProps
 });
 
-/** TODO: bottom icon, switch tab, parse on chain error */
+/** TODO: bottom icon, parse on chain error */
 
 export default connect(mapStateToProps)(MintConfirmation);
 
@@ -137,3 +143,5 @@ const Text = styled.div`
   text-align: center;
   margin: 0 10px;
 `;
+
+const MintPreview = styled.div``;

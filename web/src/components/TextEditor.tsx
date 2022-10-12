@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
+import { previewMint } from "../redux/blockchainSlice";
 import { PopupModal, modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
 import { WindowHeader } from "./WindowHeader";
@@ -36,6 +37,7 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
       );
 
     setMintConfirmationVisible(true);
+    return dispatch(previewMint(input, creator, title));
   };
 
   return (

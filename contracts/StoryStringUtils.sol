@@ -11,17 +11,21 @@ library StoryStringUtils {
     uint256 public constant MAX_CHARS_PER_MINT = 280;
     uint256 public constant MAX_CHARS_PER_LINE = 56;
 
-    function strlen(bytes memory s) public pure returns (uint256) {
-        return string(s).toSlice().len();
+    function strlen(string memory s) public pure returns (uint256) {
+        return s.toSlice().len();
     }
 
-    function validate(bytes memory s) public pure returns (bool) {
-        if (strlen(s) > MAX_CHARS_PER_MINT) return false;
+    function validate(string memory s) public pure returns (bool) {
+        bytes memory sInBytes = bytes(s);
+        if (strlen(s) <= 0 || strlen(s) > MAX_CHARS_PER_MINT) return false;
         uint16 nextInd = 1;
-        for (uint16 i = 0; i < s.length; i++) {
-            bytes1 c = s[i];
-            if (nextInd < s.length && s[nextInd] == 0x20 && c == s[nextInd])
-                return false; // consecutive spaces
+        for (uint16 i = 0; i < sInBytes.length; i++) {
+            bytes1 c = sInBytes[i];
+            if (
+                nextInd < sInBytes.length &&
+                sInBytes[nextInd] == 0x20 &&
+                c == sInBytes[nextInd]
+            ) return false; // consecutive spaces
             if (
                 !(c >= 0x30 && c <= 0x39) && //9-0
                 !(c >= 0x41 && c <= 0x5A) && //A-Z
@@ -35,8 +39,8 @@ library StoryStringUtils {
         return true;
     }
 
-    function textWrap(bytes memory s) public pure returns (string[] memory) {
-        strings.slice memory sl = string(s).toSlice();
+    function textWrap(string memory s) public pure returns (string[] memory) {
+        strings.slice memory sl = s.toSlice();
         strings.slice memory delim = " ".toSlice();
         strings.slice[] memory parts = new strings.slice[](sl.count(delim) + 1);
         for (uint16 i = 0; i < parts.length; i++) {
@@ -77,10 +81,11 @@ library StoryStringUtils {
     }
 
     function substring(
-        bytes memory strBytes,
+        string memory str,
         uint256 startIndex,
         uint256 endIndex
     ) public pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
         bytes memory result = new bytes(endIndex - startIndex);
         for (uint256 i = startIndex; i < endIndex; i++) {
             result[i - startIndex] = strBytes[i];
@@ -98,6 +103,20 @@ library StoryStringUtils {
             s[2 * i + 1] = char(lo);
         }
         return string(s);
+    }
+
+    function bytes32ToString(bytes32 x) public pure returns (string memory) {
+        uint256 numChars = 0;
+
+        for (uint256 i; i < 32; i++) {
+            if (x[i] == bytes1(0)) break;
+            numChars++;
+        }
+
+        bytes memory result = new bytes(numChars);
+        for (uint256 i; i < numChars; i++) result[i] = x[i];
+
+        return string(result);
     }
 
     function char(bytes1 b) public pure returns (bytes1 c) {

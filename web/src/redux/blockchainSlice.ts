@@ -12,7 +12,9 @@ const initialState = {
   pricePerChar: BigNumber.from(0),
   transaction: null,
   tokenIdWithBalance: {},
-  numberOfOwnedTokens: null
+  numberOfOwnedTokens: null,
+  canMintWithTitle: false,
+  svgString: ""
 };
 
 export const blockchainSlice = createSlice({
@@ -38,6 +40,7 @@ export const blockchainSlice = createSlice({
       state.stories = action.payload.stories;
       state.pricePerChar = action.payload.pricePerChar;
       state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
+      state.canMintWithTitle = action.payload.canMintWithTitle;
     },
     checkBalanceRequest: state => {
       state.loading = true;
@@ -53,6 +56,13 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.tokenIdWithBalance.balance = BigNumber.from(0);
       state.transaction = action.payload.transaction;
+    },
+    previewMintRequest: state => {
+      state.loading = true;
+    },
+    previewMintSuccess: (state, action) => {
+      state.loading = false;
+      state.svgString = action.payload.svgString;
     },
     mintRequest: state => {
       state.loading = true;
@@ -83,6 +93,8 @@ export const {
   checkBalanceSuccess,
   withdrawFundRequest,
   withdrawFundSuccess,
+  previewMintRequest,
+  previewMintSuccess,
   mintRequest,
   mintSuccess,
   error,
@@ -137,7 +149,6 @@ export const mintWithTitle =
         })
       );
     } catch (err) {
-      console.log(err);
       dispatch(error());
       dispatch(appError(err.message));
     }
@@ -150,11 +161,21 @@ export const fetchData = () => async (dispatch, getState) => {
     const { contractClient, account } = state.blockchain;
     const pricePerChar = await contractClient.getPricePerChar();
     const tokens = await contractClient.getAllTokens();
+    const canMintWithTitle = await contractClient.canMintWithTitle(
+      BigNumber.from(tokens.length)
+    );
     const stories = toStories(tokens);
     const numberOfOwnedTokens = account
       ? (await contractClient.getNumberOfOwnedTokens(account)).toNumber()
       : null;
-    dispatch(fetchDataSuccess({ stories, pricePerChar, numberOfOwnedTokens }));
+    dispatch(
+      fetchDataSuccess({
+        stories,
+        pricePerChar,
+        numberOfOwnedTokens,
+        canMintWithTitle
+      })
+    );
   } catch (err) {
     dispatch(error());
     dispatch(appError(err.message));
@@ -184,6 +205,24 @@ export const withdrawFund =
       dispatch(
         withdrawFundSuccess({
           transaction: txn
+        })
+      );
+    } catch (err) {
+      dispatch(error());
+      dispatch(appError(err.message));
+    }
+  };
+
+export const previewMint =
+  (text, creator, title) => async (dispatch, getState) => {
+    dispatch(previewMintRequest());
+    try {
+      const state = getState();
+      const { contractClient } = state.blockchain;
+      const svgString = await contractClient.generateSvg(text, creator, title);
+      dispatch(
+        previewMintSuccess({
+          svgString
         })
       );
     } catch (err) {

@@ -33,7 +33,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
       address creator;
       bool isBeginning;
       bytes32 title;
-      bytes text;
+      string text;
       uint256 parentTokenId;
       uint256 amount;
       uint256 withdrawn;
@@ -45,7 +45,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
 
     // ============ PUBLIC FUNCTIONS ============
 
-    function mint(bytes memory text, uint256 parentId)
+    function mint(string memory text, uint256 parentId)
         external
         payable
         nonReentrant
@@ -71,14 +71,14 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return nextId;
     }
 
-    function mintWithTitle(bytes32 title, bytes memory text)
+    function mintWithTitle(bytes32 title, string memory text)
         external
         payable
         nonReentrant
         returns (uint256)
     {
         uint256 textCharCount = StoryStringUtils.strlen(text);
-        if (!StoryStringUtils.validate(bytes.concat(title))) revert InvalidText();
+        if (!StoryStringUtils.validate(StoryStringUtils.bytes32ToString(title))) revert InvalidText();
         if (!StoryStringUtils.validate(text)) revert InvalidText();
         if (pricePerChar * textCharCount != msg.value) revert IncorrectEthValue();
         if (tx.origin != msg.sender) revert NonEOASender();
@@ -142,6 +142,8 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
     if (!_exists(tokenId)) revert NonExistentToken();
+    TokenMetadata memory metadata = mintedTokens[tokenId];
+    bytes32 title = mintedTokens[metadata.parentTokenId].title;
     return string(
         abi.encodePacked(
             "data:application/json;base64,",
@@ -149,7 +151,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
                 abi.encodePacked(
                     '{',
                         '"name": "Story #', tokenId.toString(), '",',
-                        '"image": "', generateSvg(tokenId), '"',
+                        '"image": "', generateSvg(metadata.text, metadata.creator, title), '"',
                         '"attributes: "', getTokenAttributes(tokenId),'"',
                     '}'
                 )
@@ -158,16 +160,12 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     );
 }
 
-   function generateSvg(uint256 tokenId) public view returns (string memory) {
-       if (!_exists(tokenId)) revert NonExistentToken();
-       TokenMetadata memory metadata = mintedTokens[tokenId];
+   function generateSvg(string memory text, address creator, bytes32 title) public view returns (string memory) {
        bytes memory svg = abi.encodePacked(
         '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
         '<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>',
         '<rect width="100%" height="100%" fill="black" />',
-        generateTextSvg(metadata.text),
-        '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">', "--", getAuthor(tokenId, metadata.creator),'</text>',
-        // TODO title, date
+        generateTextSvg(text, creator, title),
         '</svg>'
     );
     return string(
@@ -178,16 +176,20 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     );
    }
 
-   function generateTextSvg(bytes memory text) public pure returns (string memory) {
+   function generateTextSvg(string memory text, address creator, bytes32 title) public view returns (string memory) {
        string[] memory wrappedText = StoryStringUtils.textWrap(text);
        bytes memory svg = abi.encodePacked('');
-       uint textPos = 20;
+       uint textStartPos = 70 - wrappedText.length * 10;
        for (uint i = 0; i < wrappedText.length; i++) {
            svg = abi.encodePacked(svg, 
-           '<text x="50%" y="', textPos.toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
+           '<text x="50%" y="', textStartPos.toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
            );
-           textPos += 10;
+           textStartPos += 10;
        }
+       svg = abi.encodePacked(svg, 
+           '<text x="50%" y="', (textStartPos).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', getAuthor(creator),'</text>'
+           '<text x="50%" y="', (textStartPos+10).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', StoryStringUtils.bytes32ToString(title),'</text>'
+           );
 
        return string(svg);
    }
@@ -197,7 +199,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
        TokenMetadata memory metadata = mintedTokens[tokenId];
        return abi.encodePacked(
         '[{"trait_type":"Author", "value": ',
-        getAuthor(tokenId, metadata.creator),
+        getAuthor(metadata.creator),
         '}, {"trait_type":"Word Count", "value": "',
         StoryStringUtils.strlen(metadata.text).toString(),
         '"}]'
@@ -205,11 +207,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
       );
    }
 
-   function getAuthor(
-    uint256 tokenId,
-    address ownerAddress
-  ) internal view returns (string memory) {
-    if (!_exists(tokenId)) revert NonExistentToken();
+   function getAuthor(address ownerAddress) internal view returns (string memory) {
     string memory authorEns = ''; // ENSNameResolver.lookupENSName(ownerAddress);
     return
         bytes(authorEns).length > 0
@@ -218,4 +216,4 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
   }
 }
 
-// TODO title, new story every 10 mint
+// TODO new story every 10 mint

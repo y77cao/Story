@@ -97,7 +97,7 @@ function App() {
     if (!menuVisible) return null;
     return (
       <MenuWrapper>
-        {blockchain.numberOfOwnedTokens >= 10 ? ( // TODO use onchain var
+        {blockchain.canMintWithTitle ? (
           <MenuItem
             onClick={e => {
               e.preventDefault();

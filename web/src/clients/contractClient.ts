@@ -65,6 +65,10 @@ export class ContractClient {
     return this.contract.getBalanceOf(tokenId);
   }
 
+  async canMintWithTitle(nextTokenId: BigNumber): Promise<Boolean> {
+    return this.contract.canMintWithTitle(nextTokenId);
+  }
+
   async withdraw(tokenId: number, balance: BigNumber): Promise<BigNumber> {
     const signer = this.provider.getSigner();
     const contractWithSigner = this.contract.connect(signer);
@@ -77,6 +81,18 @@ export class ContractClient {
     return this.contract.balanceOf(account);
   }
 
+  async generateSvg(
+    text: string,
+    creator: string,
+    title: string
+  ): Promise<BigNumber> {
+    return this.contract.generateSvg(
+      text,
+      creator,
+      ethers.utils.formatBytes32String(title)
+    );
+  }
+
   async mint(text: string, parentId: number) {
     if (!text || !text.length || text.length > 280) {
       throw new Error("Invalid text length");
@@ -85,8 +101,7 @@ export class ContractClient {
     const contractWithSigner = this.contract.connect(signer);
     const pricePerChar = await this.getPricePerChar();
     const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
-    const textBytes = ethers.utils.toUtf8Bytes(text);
-    const txn = await contractWithSigner.mint(textBytes, parentId, {
+    const txn = await contractWithSigner.mint(text, parentId, {
       value: mintCost
     });
     await txn.wait();
@@ -106,8 +121,7 @@ export class ContractClient {
     const pricePerChar = await this.getPricePerChar();
     const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
     const titleBytes = ethers.utils.formatBytes32String(title);
-    const textBytes = ethers.utils.toUtf8Bytes(text);
-    const txn = await contractWithSigner.mintWithTitle(titleBytes, textBytes, {
+    const txn = await contractWithSigner.mintWithTitle(titleBytes, text, {
       value: mintCost
     });
     await txn.wait();
