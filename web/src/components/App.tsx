@@ -85,7 +85,6 @@ function App() {
                 }
               })
             );
-            dispatch(fetchData());
           }}
           key={tokens[0].title}
         />
@@ -202,26 +201,36 @@ function App() {
 
   return (
     <DesktopContainer>
-      <DesktopItemList>
-        <DesktopItem
-          title={"about.txt"}
-          parentId={-1}
-          onClick={() => {
-            dispatch(
-              openWindow({
-                window: {
-                  id: "manual",
-                  name: "about.txt",
-                  type: WindowType.MANUAL,
-                  metadata: {}
-                }
-              })
-            );
-          }}
-        />
-        {blockchain.stories && renderStoryItems()}
-      </DesktopItemList>
-      {renderWindows()}
+      <DesktopInnerContainer onClick={() => setMenuVisible(false)}>
+        <DesktopItemList>
+          <DesktopItem
+            title={"about.txt"}
+            parentId={-1}
+            onClick={() => {
+              dispatch(
+                openWindow({
+                  window: {
+                    id: "manual",
+                    name: "about.txt",
+                    type: WindowType.MANUAL,
+                    metadata: {}
+                  }
+                })
+              );
+            }}
+          />
+          {blockchain.stories && renderStoryItems()}
+        </DesktopItemList>
+        {renderWindows()}
+        {app.errorMsg ? (
+          <PopupModal
+            state={modalState.ERROR}
+            message={app.errorMsg}
+            onClose={() => dispatch(clearAppError())}
+            onOk={() => dispatch(clearAppError())}
+          />
+        ) : null}
+      </DesktopInnerContainer>
       <BottomWrapper>
         {renderMenu()}
         <BarWrapper>
@@ -236,14 +245,6 @@ function App() {
           {renderTabs()}
         </BarWrapper>
       </BottomWrapper>
-      {app.errorMsg ? (
-        <PopupModal
-          state={modalState.ERROR}
-          message={app.errorMsg}
-          onClose={() => dispatch(clearAppError())}
-          onOk={() => dispatch(clearAppError())}
-        />
-      ) : null}
     </DesktopContainer>
   );
 }
@@ -269,7 +270,6 @@ export const Tab = styled(StyledContainer)`
 const BottomWrapper = styled.div`
   width: 100%;
   height: auto;
-  margin-top: auto;
 `;
 
 const BarWrapper = styled(StyledContainer)`
@@ -293,6 +293,10 @@ const DesktopContainer = styled.div`
   height: 100%;
   height: 100vh;
   width: 100vw;
+`;
+
+const DesktopInnerContainer = styled.div`
+  flex-grow: 1;
 `;
 
 const MenuWrapper = styled.div`

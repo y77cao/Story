@@ -3,7 +3,8 @@ import { connect, useDispatch } from "react-redux";
 import {
   mint,
   mintWithTitle,
-  clearTransaction
+  clearTransaction,
+  fetchData
 } from "../redux/blockchainSlice";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
@@ -18,17 +19,24 @@ const MintConfirmation = ({
   loading,
   transaction,
   svgString,
-  setMintConfirmationVisible,
+  onCloseMintConfirmation,
   setSaved
 }) => {
   const dispatch = useDispatch();
   const [newTitle, setNewTitle] = useState("");
 
+  const onMintSuccess = () => {
+    dispatch(clearTransaction());
+    dispatch(fetchData());
+    onCloseMintConfirmation(true);
+    setSaved(true);
+  };
+
   return (
     <MintConfirmationWrapper>
       <WindowHeader
         title={"Confirm"}
-        onClickCloseButton={() => setMintConfirmationVisible(false)}
+        onClickCloseButton={() => onCloseMintConfirmation(false)}
       ></WindowHeader>
       <ContentWrapper>
         <MintPreview
@@ -54,7 +62,7 @@ const MintConfirmation = ({
           <ContentButton
             onClick={e => {
               e.preventDefault();
-              setMintConfirmationVisible(false);
+              onCloseMintConfirmation(false);
             }}
           >
             Cancel
@@ -81,16 +89,8 @@ const MintConfirmation = ({
             <a href="https://opensea.io/account">Opensea</a>,
             "."
           ]}
-          onClose={() => {
-            dispatch(clearTransaction());
-            setMintConfirmationVisible(false);
-            setSaved(true);
-          }}
-          onOk={() => {
-            dispatch(clearTransaction());
-            setMintConfirmationVisible(false);
-            setSaved(true);
-          }}
+          onClose={onMintSuccess}
+          onOk={onMintSuccess}
         />
       ) : null}
     </MintConfirmationWrapper>
@@ -106,7 +106,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, parse on chain error */
+/** TODO: bottom icon, manual, glitch effect, refresh button, correct urls, estimate cost, better tooltip */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

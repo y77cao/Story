@@ -50,7 +50,7 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
         }}
       >
         <HeaderButton
-          disabled={saved}
+          disabled={saved || !input.length}
           onClick={e => {
             e.preventDefault();
             // @ts-ignore
@@ -71,19 +71,31 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
           contentEditable={true}
           autoFocus={true}
           onInput={e => {
-            setInput(e.currentTarget.innerText);
+            setInput(e.currentTarget.innerText.replace(/\u200B/, ""));
             setSaved(false);
           }}
           ref={inputSpan}
         >
-          {""}
+          {
+            // https://stackoverflow.com/a/25898429
+            // hack to show cursor in contentEdible span
+            // u200B is &#8203; zero width space
+          }
+          {"\u200B"}
         </StyledInput>
       </ContentWrapper>
       {mintConfirmationVisible && (
         <MintConfirmation
           text={input}
           parentId={parentId}
-          setMintConfirmationVisible={setMintConfirmationVisible}
+          onCloseMintConfirmation={clearInput => {
+            setMintConfirmationVisible(false);
+            if (clearInput) {
+              setInput("");
+              // @ts-ignore
+              inputSpan.current.innerText = "\u200B";
+            }
+          }}
           setSaved={setSaved}
         />
       )}
@@ -141,6 +153,8 @@ const ContentWrapper = styled.div`
 
 const StyledInput = styled.span`
   border: none;
+  min-width: 10px;
+  padding-left: 1px;
   &:focus {
     outline: none;
   }

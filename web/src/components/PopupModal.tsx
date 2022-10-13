@@ -38,7 +38,11 @@ export const PopupModal = ({ state, message, onClose, onOk }) => {
       <WindowHeader title={title} onClickCloseButton={onClose}></WindowHeader>
       <ContentWrapper>
         {icon}
-        <div style={{ textAlign: "left", width: "300px" }}>{message}</div>
+        <div
+          style={{ textAlign: "left", marginLeft: "20px", maxWidth: "300px" }}
+        >
+          {message}
+        </div>
       </ContentWrapper>
       <OkButton
         onClick={e => {
@@ -71,7 +75,7 @@ const PopupModalWrapper = styled(StyledContainer)`
 const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
 `;
 const OkButton = styled(StyledButton)`

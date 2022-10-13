@@ -16,7 +16,6 @@ error NonEOASender();
 error InvalidText();
 error TextWithoutParent();
 error IncorrectEthValue();
-error TokenNotExist();
 error MoreTextMintRequired();
 error InsufficientBalance();
 error UnauthorizedWithdraw();
@@ -162,9 +161,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
 
    function generateSvg(string memory text, address creator, bytes32 title) public view returns (string memory) {
        bytes memory svg = abi.encodePacked(
-        '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
-        '<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>',
-        '<rect width="100%" height="100%" fill="black" />',
+        '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><defs><filter id="glitch" x="0" y="0"><feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/><feOffset in="r" result="r" dx="1"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/><feOffset in="g" result="g"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/><feOffset in="b" result="b" dx="2"/><feBlend in="r" in2="g" mode="screen" result="blend"/><feBlend in="blend" in2="b" mode="screen" result="blend"/></filter></defs><path fill="#677b99" d="M0 0h700v700H0z"/>',
         generateTextSvg(text, creator, title),
         '</svg>'
     );
@@ -177,18 +174,21 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
    }
 
    function generateTextSvg(string memory text, address creator, bytes32 title) public view returns (string memory) {
+       if (!StoryStringUtils.validate(text)) revert InvalidText();
        string[] memory wrappedText = StoryStringUtils.textWrap(text);
        bytes memory svg = abi.encodePacked('');
-       uint textStartPos = 70 - wrappedText.length * 10;
+       uint textStartPos = wrappedText.length <= 1 ? 40 : ( wrappedText.length >= 2 && wrappedText.length <= 3 ? 30 : 20 );
        for (uint i = 0; i < wrappedText.length; i++) {
+           string memory openQuote = i == 0 ? '"' : '';
+           string memory closeQuote = i == wrappedText.length - 1 ? '"' : '';
            svg = abi.encodePacked(svg, 
-           '<text x="50%" y="', textStartPos.toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', wrappedText[i], '</text>'
+           '<text x="50%" y="', textStartPos.toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle" filter="url(#glitch)">', openQuote, wrappedText[i], closeQuote, '</text>'
            );
            textStartPos += 10;
        }
        svg = abi.encodePacked(svg, 
-           '<text x="50%" y="', (textStartPos).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', getAuthor(creator),'</text>'
-           '<text x="50%" y="', (textStartPos+10).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle">', StoryStringUtils.bytes32ToString(title),'</text>'
+           '<text x="50%" y="', (textStartPos).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle" font-style="italic" filter="url(#glitch)"> -- ', getAuthor(creator),'</text>'
+           '<text x="50%" y="', (textStartPos+10).toString(), '%" class="base" dominant-baseline="middle" text-anchor="middle" font-style="italic" filter="url(#glitch)">', StoryStringUtils.bytes32ToString(title),'</text>'
            );
 
        return string(svg);

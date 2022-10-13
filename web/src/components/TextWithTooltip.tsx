@@ -8,7 +8,7 @@ export const TextWithTooltip = ({ textMetadata }) => {
       onMouseOver={() => setHover(true)}
       onMouseOut={() => setHover(false)}
     >
-      {textMetadata.text}
+      {textMetadata.text}{" "}
       <Tooltip hover={hover}>Creator: {textMetadata.creator}</Tooltip>
     </StyledSpan>
   );
@@ -26,5 +26,5 @@ const Tooltip = styled.span`
   position: absolute;
   left: 0;
   bottom: 20px;
-  background-color: white;
+  background-color: pink;
 `;

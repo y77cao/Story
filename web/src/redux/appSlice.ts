@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+import { parseError } from "../utils";
 const initialState = {
   errorMsg: "",
   activeWindow: null,
@@ -12,7 +12,7 @@ export const appSlice = createSlice({
   initialState,
   reducers: {
     appError: (state, action) => {
-      state.errorMsg = action.payload;
+      state.errorMsg = parseError(action.payload);
     },
     clearAppError: state => {
       state.errorMsg = "";
