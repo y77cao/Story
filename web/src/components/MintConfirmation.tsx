@@ -42,8 +42,8 @@ const MintConfirmation = ({
         <MintPreview
           style={{
             backgroundImage: `url("${svgString}")`,
-            width: "300px",
-            height: "300px"
+            width: "350px",
+            height: "350px"
           }}
         />
         {parentId === -1 ? (
@@ -54,7 +54,7 @@ const MintConfirmation = ({
         ) : null}
         <Text>
           Saving this snippet will mint an ERC721 token on Ethereum with all
-          data on-chain. The mint cost will be $
+          data on-chain. The mint cost will be{" "}
           {estimatedMintCost(text.length, pricePerChar)} ether plus gas. Are you
           sure you want to proceed?
         </Text>
@@ -84,9 +84,13 @@ const MintConfirmation = ({
           state={modalState.SUCCESS}
           message={[
             "Mint successful. Check your transaction on ",
-            <a href={`${process.env.NEXT_ETHERSCAN_URL}`}>Etherscan</a>,
+            <a href={`${process.env.NEXT_ETHERSCAN_URL}`} target="_blank">
+              Etherscan
+            </a>,
             " and verify your token on ",
-            <a href="https://opensea.io/account">Opensea</a>,
+            <a href="https://opensea.io/account" target="_blank">
+              Opensea
+            </a>,
             "."
           ]}
           onClose={onMintSuccess}
@@ -106,14 +110,14 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, manual, correct urls, estimate cost */
+/** TODO: bottom icon, correct urls, estimate cost, loading preview, FE validate */
 
 export default connect(mapStateToProps)(MintConfirmation);
 
 const MintConfirmationWrapper = styled(StyledContainer)`
   position: absolute;
-  width: 600px;
-  height: 500px;
+  width: 90%;
+  height: 90%;
   display: flex;
   flex-direction: column;
   top: 0;

@@ -12,7 +12,9 @@ export const TextWithTooltip = ({ textMetadata }) => {
       <Tooltip hover={hover}>
         Creator: {textMetadata.creator}
         {"\n"}
-        <a href="https://opensea.io/">View on Opensea</a>
+        <a href="https://opensea.io/" target="_blank">
+          View on Opensea
+        </a>
       </Tooltip>
     </StyledSpan>
   );

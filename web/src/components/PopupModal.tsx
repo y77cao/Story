@@ -39,7 +39,12 @@ export const PopupModal = ({ state, message, onClose, onOk }) => {
       <ContentWrapper>
         {icon}
         <div
-          style={{ textAlign: "left", marginLeft: "20px", maxWidth: "300px" }}
+          style={{
+            textAlign: "left",
+            marginLeft: "20px",
+            maxWidth: "250px",
+            overflow: "hidden"
+          }}
         >
           {message}
         </div>

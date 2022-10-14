@@ -5,13 +5,23 @@
   font-style: normal;
 }
 
+html,
 body {
   background-color: pink;
   margin: 0;
+  padding: 0;
   font-family: "W95FARegular";
   font-size: large;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  width: 100%;
+}
+
+body > div:first-child,
+div#__next,
+div#__next > div {
+  height: 100%;
 }
 
 code {

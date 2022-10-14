@@ -8,14 +8,17 @@ import { fetchData, previewMint } from "../redux/blockchainSlice";
 import { PopupModal, modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
 import { WindowHeader } from "./WindowHeader";
+import { estimatedMintCost } from "../utils";
 
 const TextEditor = ({
   editable = true,
   textMetadata,
   title,
+  pricePerChar,
   parentId,
   creator,
-  onClose
+  onClose,
+  children
 }) => {
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
@@ -27,7 +30,7 @@ const TextEditor = ({
 
   useEffect(() => {
     // @ts-ignore
-    inputSpan.current.focus();
+    inputSpan?.current?.focus();
   }, []);
 
   const validateMint = () => {
@@ -47,39 +50,36 @@ const TextEditor = ({
     return dispatch(previewMint(input, creator, title));
   };
 
-  return (
-    <TextEditorWrapper>
-      <WindowHeader
-        title={title}
-        onClickCloseButton={() => {
-          if (saved || !input.length) onClose();
-          else setCloseConfirmationVisible(true);
+  const renderEditableModeButtons = () => {
+    return [
+      <HeaderButton
+        onClick={e => {
+          e.preventDefault();
+          dispatch(fetchData());
         }}
+        style={{ padding: "0", lineHeight: "10px" }}
       >
-        <HeaderButton
-          onClick={e => {
-            e.preventDefault();
-            dispatch(fetchData());
-          }}
-          style={{ padding: "0", lineHeight: "10px" }}
-        >
-          ⟳
-        </HeaderButton>
-        <HeaderButton
-          disabled={saved || !input.length}
-          onClick={e => {
-            e.preventDefault();
-            // @ts-ignore
-            inputSpan.current.blur();
-            if (!input) return;
-            validateMint();
-          }}
-          style={{ fontSize: "medium" }}
-        >
-          💾
-        </HeaderButton>
-      </WindowHeader>
-      <ContentWrapper>
+        ⟳
+      </HeaderButton>,
+      <HeaderButton
+        disabled={saved || !input.length}
+        onClick={e => {
+          e.preventDefault();
+          // @ts-ignore
+          inputSpan.current.blur();
+          if (!input) return;
+          validateMint();
+        }}
+        style={{ fontSize: "medium" }}
+      >
+        💾
+      </HeaderButton>
+    ];
+  };
+
+  const renderEditableModeContent = () => {
+    return [
+      <InnerContentWrapper>
         {textMetadata.map(metadata => (
           <TextWithTooltip textMetadata={metadata} />
         ))}
@@ -88,7 +88,7 @@ const TextEditor = ({
           contentEditable={true}
           autoFocus={true}
           onInput={e => {
-            setInput(e.currentTarget.innerText.replace(/\u200B/, ""));
+            setInput(e.currentTarget.innerText.replace(/\u200B/, "").trim());
             setSaved(false);
           }}
           ref={inputSpan}
@@ -100,6 +100,31 @@ const TextEditor = ({
           }
           {"\u200B"}
         </StyledInput>
+      </InnerContentWrapper>,
+      <EstimatedCostContainer inputLength={input.length}>
+        Estimated mint price: {estimatedMintCost(input.length, pricePerChar)}{" "}
+        ether + gas{" "}
+      </EstimatedCostContainer>
+    ];
+  };
+
+  const renderReadOnlyModeContent = () => {
+    return <InnerContentWrapper>{children}</InnerContentWrapper>;
+  };
+
+  return (
+    <TextEditorWrapper>
+      <WindowHeader
+        title={title}
+        onClickCloseButton={() => {
+          if (saved || !input.length) onClose();
+          else setCloseConfirmationVisible(true);
+        }}
+      >
+        {editable && renderEditableModeButtons()}
+      </WindowHeader>
+      <ContentWrapper>
+        {editable ? renderEditableModeContent() : renderReadOnlyModeContent()}
       </ContentWrapper>
       {mintConfirmationVisible && (
         <MintConfirmation
@@ -136,6 +161,7 @@ const TextEditor = ({
 const mapStateToProps = (state, ownProps) => ({
   textMetadata: state.blockchain.stories[ownProps.parentId] || [],
   creator: state.blockchain.account,
+  pricePerChar: state.blockchain.pricePerChar,
   ...ownProps
 });
 
@@ -161,8 +187,19 @@ const HeaderButton = styled(StyledButton)`
   height: 25px;
 `;
 const ContentWrapper = styled.div`
-  padding: 10px;
   height: 100%;
+  width: 100%;
+  background-color: white;
+  font-family: TimesNewRoman;
+  position: relative;
+`;
+
+const InnerContentWrapper = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  bottom: 0;
+  left: 10px;
   display: inline;
   float: left;
   background-color: white;
@@ -185,4 +222,13 @@ const StyledInput = styled.span`
   }
 
   color: black;
+`;
+
+const EstimatedCostContainer = styled.div`
+  display: ${props => (props.inputLength === 0 ? "none" : "block")};
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-family: "W95FARegular";
+  background: pink;
 `;

@@ -23,11 +23,12 @@ import {
 } from "../redux/appSlice";
 import arrow from "../../public/arrow.png";
 import WithdrawFund from "./WithdrawFund";
+import { FAQ } from "./FAQ";
 
 export enum WindowType {
   STORY,
   WITHDRAW_FUND,
-  MANUAL
+  FAQ
 }
 
 function App() {
@@ -182,8 +183,13 @@ function App() {
               onClose={() => dispatch(closeWindow({ windowId: window.id }))}
             />
           );
-        case WindowType.MANUAL:
-          return null; // TODO
+        case WindowType.FAQ:
+          return (
+            <FAQ
+              id={window.id}
+              onClose={() => dispatch(closeWindow({ windowId: window.id }))}
+            ></FAQ>
+          );
       }
     });
   };
@@ -204,15 +210,15 @@ function App() {
       <DesktopInnerContainer onClick={() => setMenuVisible(false)}>
         <DesktopItemList>
           <DesktopItem
-            title={"about.txt"}
+            title={"FAQ.txt"}
             parentId={-1}
             onClick={() => {
               dispatch(
                 openWindow({
                   window: {
-                    id: "manual",
-                    name: "about.txt",
-                    type: WindowType.MANUAL,
+                    id: "faq",
+                    name: "FAQ.txt",
+                    type: WindowType.FAQ,
                     metadata: {}
                   }
                 })
@@ -270,6 +276,7 @@ export const Tab = styled(StyledContainer)`
 const BottomWrapper = styled.div`
   width: 100%;
   height: auto;
+  margin-top: auto;
 `;
 
 const BarWrapper = styled(StyledContainer)`
@@ -291,8 +298,6 @@ const DesktopContainer = styled.div`
   align-items: left;
   width: 100%;
   height: 100%;
-  height: 100vh;
-  width: 100vw;
 `;
 
 const DesktopInnerContainer = styled.div`

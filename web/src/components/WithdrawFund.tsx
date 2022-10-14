@@ -43,7 +43,7 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
           <ContentButton
             onClick={e => {
               e.preventDefault();
-              setConfirmationVisible(true);
+              if (tokenId) setConfirmationVisible(true);
             }}
           >
             Withdraw Fund
@@ -69,7 +69,9 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
           state={modalState.SUCCESS}
           message={[
             "Success! Please check the transaction on ",
-            <a href={`${process.env.NEXT_ETHERSCAN_URL}`}>Etherscan</a>,
+            <a href={`${process.env.NEXT_ETHERSCAN_URL}`} target="_blank">
+              Etherscan
+            </a>,
             "."
           ]}
           onClose={() => {
@@ -123,4 +125,8 @@ const ContentButton = styled(StyledButton)`
   margin: 10px;
 `;
 
-const Content = styled.div``;
+const Content = styled.div`
+  > * {
+    margin: 5px 0;
+  }
+`;
