@@ -1,9 +1,15 @@
+@font-face {
+  font-family: "W95FARegular";
+  src: url("../../public/W95FARegular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   background-color: pink;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "W95FARegular";
+  font-size: large;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -106,7 +106,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, manual, glitch effect, refresh button, correct urls, estimate cost, better tooltip */
+/** TODO: bottom icon, manual, correct urls, estimate cost */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

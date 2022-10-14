@@ -4,12 +4,19 @@ import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
-import { previewMint } from "../redux/blockchainSlice";
+import { fetchData, previewMint } from "../redux/blockchainSlice";
 import { PopupModal, modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
 import { WindowHeader } from "./WindowHeader";
 
-const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
+const TextEditor = ({
+  editable = true,
+  textMetadata,
+  title,
+  parentId,
+  creator,
+  onClose
+}) => {
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
   const inputSpan = useRef();
@@ -50,6 +57,15 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
         }}
       >
         <HeaderButton
+          onClick={e => {
+            e.preventDefault();
+            dispatch(fetchData());
+          }}
+          style={{ padding: "0", lineHeight: "10px" }}
+        >
+          ⟳
+        </HeaderButton>
+        <HeaderButton
           disabled={saved || !input.length}
           onClick={e => {
             e.preventDefault();
@@ -58,6 +74,7 @@ const TextEditor = ({ textMetadata, title, parentId, creator, onClose }) => {
             if (!input) return;
             validateMint();
           }}
+          style={{ fontSize: "medium" }}
         >
           💾
         </HeaderButton>
@@ -144,11 +161,14 @@ const HeaderButton = styled(StyledButton)`
   height: 25px;
 `;
 const ContentWrapper = styled.div`
-  width: 100%;
+  padding: 10px;
   height: 100%;
   display: inline;
   float: left;
   background-color: white;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-family: TimesNewRoman;
 `;
 
 const StyledInput = styled.span`

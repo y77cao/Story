@@ -10,6 +10,8 @@ export const StyledContainer = styled.div`
 `;
 
 export const StyledButton = styled.button`
+  font-family: "W95FARegular";
+  font-size: large;
   background-color: lightgrey;
   border-top: 1px solid #fff;
   border-left: 1px solid #fff;

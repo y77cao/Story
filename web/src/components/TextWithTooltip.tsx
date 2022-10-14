@@ -9,13 +9,16 @@ export const TextWithTooltip = ({ textMetadata }) => {
       onMouseOut={() => setHover(false)}
     >
       {textMetadata.text}{" "}
-      <Tooltip hover={hover}>Creator: {textMetadata.creator}</Tooltip>
+      <Tooltip hover={hover}>
+        Creator: {textMetadata.creator}
+        {"\n"}
+        <a href="https://opensea.io/">View on Opensea</a>
+      </Tooltip>
     </StyledSpan>
   );
 };
 
 const StyledSpan = styled.span`
-  position: relative;
   &:hover {
     background-color: yellow;
   }
@@ -24,7 +27,10 @@ const StyledSpan = styled.span`
 const Tooltip = styled.span`
   display: ${props => (props.hover ? "block" : "none")};
   position: absolute;
-  left: 0;
-  bottom: 20px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
   background-color: pink;
+  font-family: "W95FARegular";
+  padding: 5px;
+  box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
 `;

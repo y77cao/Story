@@ -26,7 +26,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
     uint256 public constant pricePerChar = 0.0005 ether;
-    uint256 public constant numberOfMintRequiredToStartStory = 10;
+    uint256 public constant numberOfMintRequiredToStartStory = 7;
 
     struct TokenMetadata {
       address creator;
@@ -215,5 +215,3 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
           : string(abi.encodePacked('0x', StoryStringUtils.toAsciiString(ownerAddress)));
   }
 }
-
-// TODO new story every 10 mint
