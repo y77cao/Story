@@ -53,9 +53,9 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
       {confirmationVisible ? (
         <PopupModal
           state={modalState.WARN}
-          message={`The balance ${toEther(
+          message={`The balance of ${toEther(
             balance
-          )} ether of token id ${tokenId} will be withdrawn.`}
+          )} ether on token id ${tokenId} will be withdrawn.`}
           onClose={() => {
             setConfirmationVisible(false);
           }}

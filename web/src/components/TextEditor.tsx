@@ -42,7 +42,7 @@ const TextEditor = ({
     if (!creator)
       return dispatch(
         appError(
-          "Please connect your wallet in Start > Connect Wallet to save your snippet"
+          "Please connect your wallet in Start > Login to save your snippet"
         )
       );
 
@@ -190,7 +190,6 @@ const ContentWrapper = styled.div`
   height: 100%;
   width: 100%;
   background-color: white;
-  font-family: TimesNewRoman;
   position: relative;
 `;
 
@@ -205,7 +204,6 @@ const InnerContentWrapper = styled.div`
   background-color: white;
   overflow-y: scroll;
   overflow-x: hidden;
-  font-family: TimesNewRoman;
 `;
 
 const StyledInput = styled.span`

@@ -110,7 +110,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, correct urls, estimate cost, loading preview, FE validate */
+/** TODO: bottom icon, correct urls, loading preview, FE validate, manifest.json */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

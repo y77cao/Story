@@ -16,6 +16,7 @@ const DesktopItemWrapper = styled.div`
   margin: 15px;
   text-align: center;
   cursor: pointer;
+  width: 100px;
 `;
 
 const AnimatedImage = styled(Image)`

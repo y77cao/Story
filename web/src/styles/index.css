@@ -7,11 +7,11 @@
 
 html,
 body {
-  background-color: pink;
   margin: 0;
   padding: 0;
   font-family: "W95FARegular";
   font-size: large;
+  letter-spacing: 0.05em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;

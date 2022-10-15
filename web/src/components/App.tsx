@@ -24,6 +24,7 @@ import {
 import arrow from "../../public/arrow.png";
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
+import storyDesktop from "../../public/story-desktop.png";
 
 export enum WindowType {
   STORY,
@@ -154,7 +155,7 @@ function App() {
             <Image src={arrow} width={20} height={20}></Image>
           </ImageWrapper>
           <MenuInnerText>
-            {blockchain.account ? blockchain.account : "Connect Wallet"}
+            {blockchain.account ? blockchain.account : "Login"}
           </MenuInnerText>
         </MenuItem>
       </MenuWrapper>
@@ -292,12 +293,16 @@ const DesktopItemList = styled.div`
 `;
 
 const DesktopContainer = styled.div`
+  background-color: pink;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: left;
   width: 100%;
   height: 100%;
+  background-image: url("/story-desktop.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 const DesktopInnerContainer = styled.div`
@@ -305,7 +310,7 @@ const DesktopInnerContainer = styled.div`
 `;
 
 const MenuWrapper = styled.div`
-  width: 350px;
+  width: 380px;
   background-color: lightgrey;
   display: flex;
   flex-direction: column;
