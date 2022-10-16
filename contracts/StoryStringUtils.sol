@@ -32,6 +32,13 @@ library StoryStringUtils {
                 !(c >= 0x61 && c <= 0x7A) && //a-z
                 !(c == 0x2E) && //.
                 !(c == 0x3F) && //?
+                !(c == 0x21) && //!
+                !(c == 0x2c) && //,
+                !(c == 0x3A) && //:
+                !(c == 0x3B) && //;
+                !(c == 0x28) && //(
+                !(c == 0x29) && //)
+                !(c == 0x2D) && //-
                 !(c == 0x20) // space
             ) return false;
             nextInd++;

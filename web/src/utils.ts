@@ -61,3 +61,7 @@ export const parseError = errorMsg => {
 
   return errorMsg;
 };
+
+export const validateText = text => {
+  return /^[A-Za-z0-9 .?!,-:;()]*$/.test(text);
+};

@@ -24,7 +24,10 @@ import {
 import arrow from "../../public/arrow.png";
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
-import storyDesktop from "../../public/story-desktop.png";
+
+import etherscanIcon from "../../public/etherscan.png";
+import githubIcon from "../../public/github.png";
+import twitterIcon from "../../public/twitter.png";
 
 export enum WindowType {
   STORY,
@@ -195,6 +198,22 @@ function App() {
     });
   };
 
+  const renderBottomIcons = () => {
+    return (
+      <IconsContainer>
+        <a href="https://github.com/y77cao" target="_blank">
+          <Image src={githubIcon}></Image>
+        </a>
+        <a href="https://twitter.com/0xdcmini" target="_blank">
+          <Image src={etherscanIcon}></Image>
+        </a>
+        <a href="https://etherscan.io/" target="_blank">
+          <Image src={twitterIcon}></Image>
+        </a>
+      </IconsContainer>
+    );
+  };
+
   const renderTabs = () => {
     return app.tabs.map(tab => (
       <Tab
@@ -249,6 +268,7 @@ function App() {
           >
             Start
           </StartButton>
+          {renderBottomIcons()}
           {renderTabs()}
         </BarWrapper>
       </BottomWrapper>
@@ -258,7 +278,6 @@ function App() {
 
 export const StartButton = styled(StyledButton)`
   padding: 5px 15px;
-  margin-right: 10px;
 `;
 
 export const Tab = styled(StyledContainer)`
@@ -342,6 +361,16 @@ const MenuInnerText = styled.div`
 
 const ImageWrapper = styled.div`
   margin: 10px;
+`;
+
+const IconsContainer = styled.div`
+  > * {
+    padding: 0 5px;
+  }
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export default App;

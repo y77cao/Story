@@ -8,7 +8,7 @@ import { fetchData, previewMint } from "../redux/blockchainSlice";
 import { PopupModal, modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
 import { WindowHeader } from "./WindowHeader";
-import { estimatedMintCost } from "../utils";
+import { estimatedMintCost, validateText } from "../utils";
 
 const TextEditor = ({
   editable = true,
@@ -37,6 +37,13 @@ const TextEditor = ({
     if (input.length > 280)
       return dispatch(
         appError("Your snippet exceeds the maximum length of 280 charaters")
+      );
+
+    if (!validateText(input))
+      return dispatch(
+        appError(
+          "Snippet contains invalid character(s). Only letters, numbers, single space, and punctuation marks: [.?!,-:;()] are allowed"
+        )
       );
 
     if (!creator)
@@ -137,6 +144,8 @@ const TextEditor = ({
               // @ts-ignore
               inputSpan.current.innerText = "\u200B";
             }
+            // if new story and minted, close the new story window
+            if (parentId == -1 && saved) onClose();
           }}
           setSaved={setSaved}
         />

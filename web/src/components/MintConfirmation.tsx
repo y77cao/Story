@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
+import Image from "next/image";
+
 import {
   mint,
   mintWithTitle,
@@ -11,6 +13,7 @@ import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import { estimatedMintCost } from "../utils";
 import { PopupModal, modalState } from "./PopupModal";
 import { WindowHeader } from "./WindowHeader";
+import loadingGif from "../../public/loading.gif";
 
 const MintConfirmation = ({
   text,
@@ -39,13 +42,21 @@ const MintConfirmation = ({
         onClickCloseButton={() => onCloseMintConfirmation(false)}
       ></WindowHeader>
       <ContentWrapper>
-        <MintPreview
-          style={{
-            backgroundImage: `url("${svgString}")`,
-            width: "350px",
-            height: "350px"
-          }}
-        />
+        <MintPreview>
+          {loading ? (
+            <LoadingContainer>
+              <Image src={loadingGif} width={60} height={60}></Image>
+            </LoadingContainer>
+          ) : (
+            <div
+              style={{
+                backgroundImage: `url("${svgString}")`,
+                width: "350px",
+                height: "350px"
+              }}
+            ></div>
+          )}
+        </MintPreview>
         {parentId === -1 ? (
           <div>
             New story title:{" "}
@@ -110,7 +121,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: bottom icon, correct urls, loading preview, FE validate, manifest.json */
+/** TODO: correct urls, manifest.json, responsive, validate title */
 
 export default connect(mapStateToProps)(MintConfirmation);
 
@@ -148,4 +159,12 @@ const Text = styled.div`
   margin: 0 10px;
 `;
 
-const MintPreview = styled.div``;
+const LoadingContainer = styled.div``;
+
+const MintPreview = styled.div`
+  width: 350px;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
