@@ -37,7 +37,9 @@ export enum WindowType {
 
 function App() {
   const dispatch = useDispatch();
+  // @ts-ignore
   const blockchain = useSelector(state => state.blockchain);
+  // @ts-ignore
   const app = useSelector(state => state.app);
   const [menuVisible, setMenuVisible] = useState(false);
 

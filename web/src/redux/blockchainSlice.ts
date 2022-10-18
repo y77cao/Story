@@ -54,6 +54,7 @@ export const blockchainSlice = createSlice({
     },
     withdrawFundSuccess: (state, action) => {
       state.loading = false;
+      //@ts-ignore
       state.tokenIdWithBalance.balance = BigNumber.from(0);
       state.transaction = action.payload.transaction;
     },

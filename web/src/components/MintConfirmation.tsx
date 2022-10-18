@@ -121,7 +121,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: correct urls, manifest.json, responsive, validate title */
+/** TODO: correct urls, manifest.json, responsive, validate title, typing, get rid of ts-ignore */
 
 export default connect(mapStateToProps)(MintConfirmation);
 
