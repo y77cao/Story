@@ -43,8 +43,8 @@ export const FAQ = ({ id, onClose }) => {
         <div>
           Rewards are divided on a per-token basis. The mint cost of the current
           token will be distributed evenly to all previous tokens that have been
-          minted before it. You can check the and withdraw the rewards in Start
-          &gt; Check Balance / Withdraw Fund.
+          minted before it. You can check and withdraw the rewards in Start &gt;
+          Check Balance / Withdraw Fund.
         </div>
         <div>
           <strong>Who’s the creator?</strong>

@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from "ethers";
-import Story from "contracts/Story.sol/Story.json";
+import Story from "../abi/Story.json";
 
 // @ts-ignore
 export class ContractClient {
