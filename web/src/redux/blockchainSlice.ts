@@ -8,7 +8,7 @@ const initialState = {
   loading: false,
   account: null,
   contractClient: null,
-  stories: null,
+  stories: [],
   pricePerChar: BigNumber.from(0),
   transaction: null,
   tokenIdWithBalance: {},
