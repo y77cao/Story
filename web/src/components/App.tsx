@@ -4,7 +4,7 @@ import Image from "next/image";
 import styled from "styled-components";
 
 import {
-  updateAccount,
+  updateAccountMetadata,
   initSuccess,
   fetchData,
   connect
@@ -54,7 +54,7 @@ function App() {
         dispatch(initSuccess({ contractClient }));
         dispatch(fetchData());
         ethereum.on("accountsChanged", accounts => {
-          dispatch(updateAccount({ account: accounts[0] }));
+          dispatch(updateAccountMetadata(accounts[0]));
         });
         ethereum.on("chainChanged", () => {
           window.location.reload();

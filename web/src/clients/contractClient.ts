@@ -75,8 +75,8 @@ export class ContractClient {
     return this.contract.getBalanceOf(tokenId);
   }
 
-  async canMintWithTitle(nextTokenId: BigNumber): Promise<Boolean> {
-    return this.contract.canMintWithTitle(nextTokenId);
+  async canMintWithTitle(nextTokenId: BigNumber, account): Promise<Boolean> {
+    return this.contract.canMintWithTitle(nextTokenId, { from: account });
   }
 
   async withdraw(tokenId: number, balance: BigNumber): Promise<BigNumber> {

@@ -31,8 +31,8 @@ const MintConfirmation = ({
   const onMintSuccess = () => {
     dispatch(clearTransaction());
     dispatch(fetchData());
-    onCloseMintConfirmation(true);
     setSaved(true);
+    onCloseMintConfirmation(true);
   };
 
   return (
@@ -121,7 +121,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: correct urls, manifest.json, responsive, validate title, typing, get rid of ts-ignore */
+/** TODO: correct urls, manifest.json, responsive, validate title, typing, get rid of ts-ignore, withdraw loading */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

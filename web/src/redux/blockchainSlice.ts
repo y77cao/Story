@@ -79,8 +79,13 @@ export const blockchainSlice = createSlice({
     error: state => {
       state.loading = false;
     },
-    updateAccount: (state, action) => {
+    updateAccountRequest: state => {
+      state.loading = true;
+    },
+    updateAccountSuccess: (state, action) => {
       state.account = action.payload.account;
+      state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
+      state.canMintWithTitle = action.payload.canMintWithTitle;
     }
   }
 });
@@ -101,7 +106,8 @@ export const {
   mintSuccess,
   error,
   clearTransaction,
-  updateAccount
+  updateAccountRequest,
+  updateAccountSuccess
 } = blockchainSlice.actions;
 
 export const connect = () => async (dispatch, getState) => {
@@ -113,11 +119,35 @@ export const connect = () => async (dispatch, getState) => {
     const numberOfOwnedTokens = (
       await contractClient.getNumberOfOwnedTokens(account)
     ).toNumber();
+    const nextTokenId = Object.values(stories).flat().length;
     const canMintWithTitle = await contractClient.canMintWithTitle(
-      BigNumber.from(stories.length)
+      BigNumber.from(nextTokenId),
+      account
     );
     dispatch(
       connectSuccess({ account, numberOfOwnedTokens, canMintWithTitle })
+    );
+  } catch (err) {
+    dispatch(error());
+    dispatch(appError(err.message));
+  }
+};
+
+export const updateAccountMetadata = account => async (dispatch, getState) => {
+  dispatch(updateAccountRequest());
+  try {
+    const state = getState();
+    const { contractClient, stories } = state.blockchain;
+    const numberOfOwnedTokens = (
+      await contractClient.getNumberOfOwnedTokens(account)
+    ).toNumber();
+    const nextTokenId = Object.values(stories).flat().length;
+    const canMintWithTitle = await contractClient.canMintWithTitle(
+      BigNumber.from(nextTokenId),
+      account
+    );
+    dispatch(
+      updateAccountSuccess({ account, numberOfOwnedTokens, canMintWithTitle })
     );
   } catch (err) {
     dispatch(error());
@@ -168,9 +198,12 @@ export const fetchData = () => async (dispatch, getState) => {
     const { contractClient, account } = state.blockchain;
     const pricePerChar = await contractClient.getPricePerChar();
     const tokens = await contractClient.getAllTokens();
-    const canMintWithTitle = await contractClient.canMintWithTitle(
-      BigNumber.from(tokens.length)
-    );
+    const canMintWithTitle = account
+      ? await contractClient.canMintWithTitle(
+          BigNumber.from(tokens.length),
+          account
+        )
+      : false;
     const stories = toStories(tokens);
     const numberOfOwnedTokens = account
       ? (await contractClient.getNumberOfOwnedTokens(account)).toNumber()

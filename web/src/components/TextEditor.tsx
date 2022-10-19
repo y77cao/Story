@@ -144,8 +144,8 @@ const TextEditor = ({
               // @ts-ignore
               inputSpan.current.innerText = "\u200B";
             }
-            // if new story and minted, close the new story window
-            if (parentId == -1 && saved) onClose();
+            // if new story, close the new story window
+            if (parentId == -1) onClose();
           }}
           setSaved={setSaved}
         />
