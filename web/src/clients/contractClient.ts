@@ -19,10 +19,15 @@ export class ContractClient {
     const networkId = await ethereum.request({
       method: "net_version"
     });
-    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID)
+    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+      const networkStr =
+        process.env.NEXT_PUBLIC_NETWORK_ID === "1"
+          ? "Ethereum mainnet"
+          : "Goerli testnet";
       throw new Error(
-        `Unsupported network. Please make sure that your are on ethereum mainnet.`
+        `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
+    }
 
     const provider = new ethers.providers.Web3Provider(ethereum);
     const contract = new ethers.Contract(
@@ -41,10 +46,15 @@ export class ContractClient {
     const networkId = await ethereum.request({
       method: "net_version"
     });
-    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID)
+    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+      const networkStr =
+        process.env.NEXT_PUBLIC_NETWORK_ID === "1"
+          ? "Ethereum mainnet"
+          : "Goerli testnet";
       throw new Error(
-        `Unsupported network. Please make sure that your are on ethereum mainnet.`
+        `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
+    }
 
     const accounts = await ethereum.request({
       method: "eth_requestAccounts"

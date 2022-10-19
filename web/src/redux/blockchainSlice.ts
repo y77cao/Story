@@ -31,6 +31,7 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       state.account = action.payload.account;
       state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
+      state.canMintWithTitle = action.payload.canMintWithTitle;
     },
     fetchDataRequest: state => {
       state.loading = true;
@@ -107,12 +108,17 @@ export const connect = () => async (dispatch, getState) => {
   dispatch(connectRequest());
   try {
     const state = getState();
-    const { contractClient } = state.blockchain;
+    const { contractClient, stories } = state.blockchain;
     const account = await ContractClient.connectWallet();
     const numberOfOwnedTokens = (
       await contractClient.getNumberOfOwnedTokens(account)
     ).toNumber();
-    dispatch(connectSuccess({ account, numberOfOwnedTokens }));
+    const canMintWithTitle = await contractClient.canMintWithTitle(
+      BigNumber.from(stories.length)
+    );
+    dispatch(
+      connectSuccess({ account, numberOfOwnedTokens, canMintWithTitle })
+    );
   } catch (err) {
     dispatch(error());
     dispatch(appError(err.message));
