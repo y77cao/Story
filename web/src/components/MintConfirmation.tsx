@@ -71,16 +71,14 @@ const MintConfirmation = ({
         </Text>
         <ContentButtonWrapper>
           <ContentButton
-            onClick={e => {
-              e.preventDefault();
+            onClick={() => {
               onCloseMintConfirmation(false);
             }}
           >
             Cancel
           </ContentButton>
           <ContentButton
-            onClick={e => {
-              e.preventDefault();
+            onClick={() => {
               parentId === -1
                 ? dispatch(mintWithTitle(newTitle, text))
                 : dispatch(mint(text, parentId));

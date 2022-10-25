@@ -1,17 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+import { StyledButton, StyledContainer } from "../styles/globalStyles";
+import { WindowHeader } from "./WindowHeader";
+
 import error from "../../public/error.png";
 import warning from "../../public/warning.png";
 import success from "../../public/success.png";
-import { StyledButton, StyledContainer } from "../styles/globalStyles";
-import { WindowHeader } from "./WindowHeader";
+
+import errorAudio from "../../public/audio/error.wav";
+import warningAudio from "../../public/audio/warning.wav";
+import successAudio from "../../public/audio/success.wav";
 
 export enum modalState {
   ERROR,
   WARN,
   SUCCESS
 }
+
+const playAudio = audio => {
+  new Audio(audio).play();
+};
+
+const playAudioOnDisplay = state => {
+  switch (state) {
+    case modalState.ERROR:
+      playAudio(errorAudio);
+      break;
+    case modalState.WARN:
+      playAudio(warningAudio);
+      break;
+    case modalState.SUCCESS:
+      playAudio(successAudio);
+      break;
+  }
+};
+
 const getIconAndTitle = state => {
   switch (state) {
     case modalState.ERROR:
@@ -31,8 +55,14 @@ const getIconAndTitle = state => {
       };
   }
 };
+
 export const PopupModal = ({ state, message, onClose, onOk }) => {
   const { icon, title } = getIconAndTitle(state);
+
+  useEffect(() => {
+    playAudioOnDisplay(state);
+  }, []);
+
   return (
     <PopupModalWrapper>
       <WindowHeader title={title} onClickCloseButton={onClose}></WindowHeader>
@@ -49,14 +79,7 @@ export const PopupModal = ({ state, message, onClose, onOk }) => {
           {message}
         </div>
       </ContentWrapper>
-      <OkButton
-        onClick={e => {
-          e.preventDefault();
-          onOk();
-        }}
-      >
-        OK
-      </OkButton>
+      <OkButton onClick={onOk}>OK</OkButton>
     </PopupModalWrapper>
   );
 };

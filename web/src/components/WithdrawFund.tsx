@@ -33,16 +33,14 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
         </Content>
         <ContentButtonWrapper>
           <ContentButton
-            onClick={e => {
-              e.preventDefault();
+            onClick={() => {
               dispatch(checkBalance(tokenId));
             }}
           >
             Check Balance
           </ContentButton>
           <ContentButton
-            onClick={e => {
-              e.preventDefault();
+            onClick={() => {
               if (tokenId) setConfirmationVisible(true);
             }}
           >

@@ -31,6 +31,9 @@ export const toEther = amountInWei => {
 
 export const parseError = errorMsg => {
   // deal with on chain errors
+  if (errorMsg.includes("INSUFFICIENT_FUNDS")) {
+    return "Insufficient balance to mint";
+  }
   if (errorMsg.includes("NonEOASender")) {
     return "Cannot send transaction from non EOA account";
   }

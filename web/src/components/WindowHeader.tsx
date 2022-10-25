@@ -2,6 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import { StyledButton } from "../styles/globalStyles";
 
+import windowCloseAudio from "../../public/audio/window-close.wav";
+
+const playAudio = () => {
+  new Audio(windowCloseAudio).play();
+};
+
 export const WindowHeader = ({
   title,
   onClickCloseButton,
@@ -13,8 +19,8 @@ export const WindowHeader = ({
       <ButtonsWrapper>
         {children}
         <HeaderButton
-          onClick={e => {
-            e.preventDefault();
+          onClick={() => {
+            playAudio();
             onClickCloseButton();
           }}
         >

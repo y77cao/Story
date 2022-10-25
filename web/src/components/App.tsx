@@ -21,10 +21,10 @@ import {
   openWindow,
   switchWindow
 } from "../redux/appSlice";
-import arrow from "../../public/arrow.png";
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
 
+import arrow from "../../public/arrow.png";
 import etherscanIcon from "../../public/etherscan.png";
 import githubIcon from "../../public/github.png";
 import twitterIcon from "../../public/twitter.png";
@@ -77,8 +77,7 @@ function App() {
         <DesktopItem
           title={`${tokens[0].title}.txt`}
           parentId={parentId}
-          onClick={e => {
-            e.preventDefault();
+          onClickItem={() => {
             dispatch(
               openWindow({
                 window: {
@@ -105,8 +104,7 @@ function App() {
       <MenuWrapper>
         {blockchain.canMintWithTitle ? (
           <MenuItem
-            onClick={e => {
-              e.preventDefault();
+            onClick={() => {
               dispatch(
                 openWindow({
                   window: {
@@ -130,8 +128,7 @@ function App() {
           </MenuItem>
         ) : null}
         <MenuItem
-          onClick={e => {
-            e.preventDefault();
+          onClick={() => {
             dispatch(
               openWindow({
                 window: {
@@ -151,8 +148,7 @@ function App() {
           <MenuInnerText>Check Balance / Withdraw Fund</MenuInnerText>
         </MenuItem>
         <MenuItem
-          onClick={e => {
-            e.preventDefault();
+          onClick={() => {
             if (!blockchain.account) dispatch(connect());
           }}
         >
@@ -234,7 +230,7 @@ function App() {
           <DesktopItem
             title={"FAQ.txt"}
             parentId={-1}
-            onClick={() => {
+            onClickItem={() => {
               dispatch(
                 openWindow({
                   window: {
@@ -262,14 +258,7 @@ function App() {
       <BottomWrapper>
         {renderMenu()}
         <BarWrapper>
-          <StartButton
-            onClick={e => {
-              e.preventDefault();
-              toggleMenu();
-            }}
-          >
-            Start
-          </StartButton>
+          <StartButton onClick={toggleMenu}>Start</StartButton>
           {renderBottomIcons()}
           {renderTabs()}
         </BarWrapper>
@@ -321,7 +310,7 @@ const DesktopContainer = styled.div`
   align-items: left;
   width: 100%;
   height: 100%;
-  background-image: url("/story-desktop.png");
+  background-image: url("/story-desktop.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
 `;

@@ -60,8 +60,7 @@ const TextEditor = ({
   const renderEditableModeButtons = () => {
     return [
       <HeaderButton
-        onClick={e => {
-          e.preventDefault();
+        onClick={() => {
           dispatch(fetchData());
         }}
         style={{ padding: "0", lineHeight: "10px" }}
@@ -70,8 +69,7 @@ const TextEditor = ({
       </HeaderButton>,
       <HeaderButton
         disabled={saved || !input.length}
-        onClick={e => {
-          e.preventDefault();
+        onClick={() => {
           // @ts-ignore
           inputSpan.current.blur();
           if (!input) return;
