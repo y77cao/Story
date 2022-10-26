@@ -5,9 +5,9 @@ import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
 import { fetchData, previewMint } from "../redux/blockchainSlice";
-import { PopupModal, modalState } from "./PopupModal";
+import PopupModal, { modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
-import { WindowHeader } from "./WindowHeader";
+import WindowHeader from "./WindowHeader";
 import { estimatedMintCost, validateText } from "../utils";
 
 const TextEditor = ({

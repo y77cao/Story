@@ -28,7 +28,7 @@ export const FAQ = ({ id, onClose }) => {
         <div>
           <strong>How much does it cost?</strong>
         </div>
-        <div>Mint price is 0.0005 ether per character + gas.</div>
+        <div>Mint price is 0.00005 ether per character + gas.</div>
         <div>
           <strong>Can I start my own story?</strong>
         </div>

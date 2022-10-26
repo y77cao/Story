@@ -7,6 +7,7 @@ export const toStories = tokens => {
     if (token.isBeginning) stories[parentTokenId] = [];
 
     stories[parentTokenId].push({
+      id: index,
       amount: amount.toString(),
       creator,
       text: text,

@@ -10,11 +10,8 @@ export const TextWithTooltip = ({ textMetadata }) => {
     >
       {textMetadata.text}{" "}
       <Tooltip hover={hover}>
-        Creator: {textMetadata.creator}
-        {"\n"}
-        <a href="https://opensea.io/" target="_blank">
-          View on Opensea
-        </a>
+        <div>ID: {textMetadata.id}</div>
+        <div>Creator: {textMetadata.creator}</div>
       </Tooltip>
     </StyledSpan>
   );

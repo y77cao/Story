@@ -10,16 +10,17 @@ import {
   connect
 } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
-import { PopupModal, modalState } from "./PopupModal";
+import PopupModal, { modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
-import { DesktopItem } from "./DesktopItem";
+import DesktopItem from "./DesktopItem";
 import {
   appError,
   clearAppError,
   closeWindow,
   openWindow,
-  switchWindow
+  switchWindow,
+  toggleAudio
 } from "../redux/appSlice";
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
@@ -28,6 +29,8 @@ import arrow from "../../public/arrow.png";
 import etherscanIcon from "../../public/etherscan.png";
 import githubIcon from "../../public/github.png";
 import twitterIcon from "../../public/twitter.png";
+import volumeIcon from "../../public/volume.png";
+import muteIcon from "../../public/mute.png";
 
 export enum WindowType {
   STORY,
@@ -199,13 +202,26 @@ function App() {
   const renderBottomIcons = () => {
     return (
       <IconsContainer>
+        <div
+          onClick={() => dispatch(toggleAudio())}
+          style={{ cursor: "pointer" }}
+        >
+          {app.audioEnabled ? (
+            <Image src={volumeIcon}></Image>
+          ) : (
+            <Image src={muteIcon}></Image>
+          )}
+        </div>
         <a href="https://github.com/y77cao" target="_blank">
           <Image src={githubIcon}></Image>
         </a>
-        <a href="https://twitter.com/0xdcmini" target="_blank">
+        <a
+          href="https://goerli.etherscan.io/address/0xc9fe9e9101da9ca8a7ae961671eaa85860e5e353"
+          target="_blank"
+        >
           <Image src={etherscanIcon}></Image>
         </a>
-        <a href="https://etherscan.io/" target="_blank">
+        <a href="https://twitter.com/0xdcmini" target="_blank">
           <Image src={twitterIcon}></Image>
         </a>
       </IconsContainer>

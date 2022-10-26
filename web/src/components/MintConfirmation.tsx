@@ -10,10 +10,12 @@ import {
 } from "../redux/blockchainSlice";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
-import { estimatedMintCost } from "../utils";
-import { PopupModal, modalState } from "./PopupModal";
-import { WindowHeader } from "./WindowHeader";
+import { estimatedMintCost, validateText } from "../utils";
+import PopupModal, { modalState } from "./PopupModal";
+import WindowHeader from "./WindowHeader";
+
 import loadingGif from "../../public/loading.gif";
+import { appError } from "../redux/appSlice";
 
 const MintConfirmation = ({
   text,
@@ -33,6 +35,19 @@ const MintConfirmation = ({
     dispatch(fetchData());
     setSaved(true);
     onCloseMintConfirmation(true);
+  };
+
+  const onConfirmMint = () => {
+    if (!validateText(newTitle))
+      return dispatch(
+        appError(
+          "Title contains invalid character(s). Only letters, numbers, single space, and punctuation marks: [.?!,-:;()] are allowed"
+        )
+      );
+
+    parentId === -1
+      ? dispatch(mintWithTitle(newTitle, text))
+      : dispatch(mint(text, parentId));
   };
 
   return (
@@ -77,15 +92,7 @@ const MintConfirmation = ({
           >
             Cancel
           </ContentButton>
-          <ContentButton
-            onClick={() => {
-              parentId === -1
-                ? dispatch(mintWithTitle(newTitle, text))
-                : dispatch(mint(text, parentId));
-            }}
-          >
-            Confirm
-          </ContentButton>
+          <ContentButton onClick={onConfirmMint}>Confirm</ContentButton>
         </ContentButtonWrapper>
       </ContentWrapper>
       {transaction ? (
@@ -93,11 +100,14 @@ const MintConfirmation = ({
           state={modalState.SUCCESS}
           message={[
             "Mint successful. Check your transaction on ",
-            <a href={`${process.env.NEXT_ETHERSCAN_URL}`} target="_blank">
+            <a
+              href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}tx/${transaction.hash}`}
+              target="_blank"
+            >
               Etherscan
             </a>,
             " and verify your token on ",
-            <a href="https://opensea.io/account" target="_blank">
+            <a href="https://testnets.opensea.io/account" target="_blank">
               Opensea
             </a>,
             "."
@@ -114,12 +124,12 @@ const mapStateToProps = (state, ownProps) => ({
   creator: state.blockchain.account,
   pricePerChar: state.blockchain.pricePerChar,
   loading: state.blockchain.loading,
-  transaction: state.blockchain.transaction,
+  transaction: state.blockchain.mintTransaction,
   svgString: state.blockchain.svgString,
   ...ownProps
 });
 
-/** TODO: correct urls, manifest.json, responsive, validate title, typing, get rid of ts-ignore, withdraw loading */
+/** TODO: responsive, typing, get rid of ts-ignore, more audios, google analytics */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

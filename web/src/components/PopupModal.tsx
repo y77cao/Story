@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import Image from "next/image";
+
 import { StyledButton, StyledContainer } from "../styles/globalStyles";
-import { WindowHeader } from "./WindowHeader";
+import WindowHeader from "./WindowHeader";
 
 import error from "../../public/error.png";
 import warning from "../../public/warning.png";
 import success from "../../public/success.png";
+import loadingGif from "../../public/loading.gif";
 
 import errorAudio from "../../public/audio/error.wav";
 import warningAudio from "../../public/audio/warning.wav";
@@ -56,33 +59,50 @@ const getIconAndTitle = state => {
   }
 };
 
-export const PopupModal = ({ state, message, onClose, onOk }) => {
+const PopupModal = ({
+  state,
+  message,
+  onClose,
+  onOk,
+  audioEnabled,
+  loading = false
+}) => {
   const { icon, title } = getIconAndTitle(state);
 
   useEffect(() => {
-    playAudioOnDisplay(state);
+    if (audioEnabled) playAudioOnDisplay(state);
   }, []);
 
   return (
     <PopupModalWrapper>
       <WindowHeader title={title} onClickCloseButton={onClose}></WindowHeader>
-      <ContentWrapper>
-        {icon}
-        <div
-          style={{
-            textAlign: "left",
-            marginLeft: "20px",
-            maxWidth: "250px",
-            overflow: "hidden"
-          }}
-        >
-          {message}
-        </div>
-      </ContentWrapper>
+      {loading ? (
+        <Image src={loadingGif} width={50} height={50}></Image>
+      ) : (
+        <ContentWrapper>
+          {icon}
+          <div
+            style={{
+              textAlign: "left",
+              marginLeft: "20px",
+              maxWidth: "250px",
+              overflow: "hidden"
+            }}
+          >
+            {message}
+          </div>
+        </ContentWrapper>
+      )}
       <OkButton onClick={onOk}>OK</OkButton>
     </PopupModalWrapper>
   );
 };
+
+const mapStateToProps = (state, ownProps) => ({
+  audioEnabled: state.app.audioEnabled,
+  ...ownProps
+});
+export default connect(mapStateToProps)(PopupModal);
 
 const PopupModalWrapper = styled(StyledContainer)`
   position: absolute;

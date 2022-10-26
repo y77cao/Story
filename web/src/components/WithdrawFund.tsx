@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import { WindowHeader } from "./WindowHeader";
-import { PopupModal, modalState } from "./PopupModal";
+import WindowHeader from "./WindowHeader";
+import PopupModal, { modalState } from "./PopupModal";
 import { StyledButton, StyledContainer } from "../styles/globalStyles";
 import {
   checkBalance,
@@ -11,7 +11,7 @@ import {
 } from "../redux/blockchainSlice";
 import { toEther } from "../utils";
 
-const WithdrawFund = ({ onClose, balance, transaction }) => {
+const WithdrawFund = ({ onClose, balance, transaction, loading }) => {
   const dispatch = useDispatch();
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [tokenId, setTokenId] = useState(null);
@@ -51,6 +51,7 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
       {confirmationVisible ? (
         <PopupModal
           state={modalState.WARN}
+          loading={loading}
           message={`The balance of ${toEther(
             balance
           )} ether on token id ${tokenId} will be withdrawn.`}
@@ -67,7 +68,10 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
           state={modalState.SUCCESS}
           message={[
             "Success! Please check the transaction on ",
-            <a href={`${process.env.NEXT_ETHERSCAN_URL}`} target="_blank">
+            <a
+              href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}`}
+              target="_blank"
+            >
               Etherscan
             </a>,
             "."
@@ -88,7 +92,8 @@ const WithdrawFund = ({ onClose, balance, transaction }) => {
 
 const mapStateToProps = (state, ownProps) => ({
   balance: state.blockchain.tokenIdWithBalance.balance,
-  transaction: state.blockchain.transaction,
+  transaction: state.blockchain.withdrawTransaction,
+  loading: state.blockchain.loading,
   ...ownProps
 });
 

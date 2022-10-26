@@ -4,7 +4,8 @@ const initialState = {
   errorMsg: "",
   activeWindow: null,
   windows: [],
-  tabs: []
+  tabs: [],
+  audioEnabled: true
 };
 
 export const appSlice = createSlice({
@@ -51,6 +52,9 @@ export const appSlice = createSlice({
         el = state.windows.splice(index, 1);
       }
       state.windows = [...state.windows, el[0]];
+    },
+    toggleAudio: state => {
+      state.audioEnabled = !state.audioEnabled;
     }
   }
 });
@@ -60,7 +64,8 @@ export const {
   clearAppError,
   openWindow,
   closeWindow,
-  switchWindow
+  switchWindow,
+  toggleAudio
 } = appSlice.actions;
 
 export default appSlice.reducer;

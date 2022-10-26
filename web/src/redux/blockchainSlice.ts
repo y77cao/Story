@@ -10,7 +10,8 @@ const initialState = {
   contractClient: null,
   stories: [],
   pricePerChar: BigNumber.from(0),
-  transaction: null,
+  mintTransaction: null,
+  withdrawTransaction: null,
   tokenIdWithBalance: {},
   numberOfOwnedTokens: null,
   canMintWithTitle: false,
@@ -57,7 +58,7 @@ export const blockchainSlice = createSlice({
       state.loading = false;
       //@ts-ignore
       state.tokenIdWithBalance.balance = BigNumber.from(0);
-      state.transaction = action.payload.transaction;
+      state.withdrawTransaction = action.payload.transaction;
     },
     previewMintRequest: state => {
       state.loading = true;
@@ -71,11 +72,12 @@ export const blockchainSlice = createSlice({
     },
     mintSuccess: (state, action) => {
       state.loading = false;
-      state.transaction = action.payload.transaction;
+      state.mintTransaction = action.payload.transaction;
     },
     clearTransaction: state => {
-      state.transaction = null;
-    }, // TODO might be able to move this to MintConfirmation
+      state.mintTransaction = null;
+      state.withdrawTransaction = null;
+    },
     error: state => {
       state.loading = false;
     },

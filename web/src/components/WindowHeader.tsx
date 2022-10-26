@@ -1,5 +1,7 @@
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
+
 import { StyledButton } from "../styles/globalStyles";
 
 import windowCloseAudio from "../../public/audio/window-close.wav";
@@ -8,9 +10,10 @@ const playAudio = () => {
   new Audio(windowCloseAudio).play();
 };
 
-export const WindowHeader = ({
+const WindowHeader = ({
   title,
   onClickCloseButton,
+  audioEnabled,
   children = null
 }) => {
   return (
@@ -20,7 +23,7 @@ export const WindowHeader = ({
         {children}
         <HeaderButton
           onClick={() => {
-            playAudio();
+            if (audioEnabled) playAudio();
             onClickCloseButton();
           }}
         >
@@ -30,6 +33,12 @@ export const WindowHeader = ({
     </HeaderWrapper>
   );
 };
+
+const mapStateToProps = (state, ownProps) => ({
+  audioEnabled: state.app.audioEnabled,
+  ...ownProps
+});
+export default connect(mapStateToProps)(WindowHeader);
 
 const HeaderWrapper = styled.div`
   width: 100%;
