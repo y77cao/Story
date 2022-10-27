@@ -14,6 +14,7 @@ import PopupModal, { modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
 import { ContractClient } from "../clients/contractClient";
 import DesktopItem from "./DesktopItem";
+import MenuItem from "./MenuItem";
 import {
   appError,
   clearAppError,
@@ -25,7 +26,6 @@ import {
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
 
-import arrow from "../../public/arrow.png";
 import etherscanIcon from "../../public/etherscan.png";
 import githubIcon from "../../public/github.png";
 import twitterIcon from "../../public/twitter.png";
@@ -107,7 +107,7 @@ function App() {
       <MenuWrapper>
         {blockchain.canMintWithTitle ? (
           <MenuItem
-            onClick={() => {
+            onClickItem={() => {
               dispatch(
                 openWindow({
                   window: {
@@ -123,15 +123,11 @@ function App() {
               );
               toggleMenu();
             }}
-          >
-            <ImageWrapper>
-              <Image src={arrow} width={20} height={20}></Image>
-            </ImageWrapper>
-            <MenuInnerText>New Story</MenuInnerText>
-          </MenuItem>
+            text="New Story"
+          />
         ) : null}
         <MenuItem
-          onClick={() => {
+          onClickItem={() => {
             dispatch(
               openWindow({
                 window: {
@@ -144,24 +140,14 @@ function App() {
             );
             toggleMenu();
           }}
-        >
-          <ImageWrapper>
-            <Image src={arrow} width={20} height={20}></Image>
-          </ImageWrapper>
-          <MenuInnerText>Check Balance / Withdraw Fund</MenuInnerText>
-        </MenuItem>
+          text="Check Balance / Withdraw Fund"
+        />
         <MenuItem
-          onClick={() => {
+          onClickItem={() => {
             if (!blockchain.account) dispatch(connect());
           }}
-        >
-          <ImageWrapper>
-            <Image src={arrow} width={20} height={20}></Image>
-          </ImageWrapper>
-          <MenuInnerText>
-            {blockchain.account ? blockchain.account : "Login"}
-          </MenuInnerText>
-        </MenuItem>
+          text={blockchain.account ? blockchain.account : "Login"}
+        />
       </MenuWrapper>
     );
   };
@@ -347,27 +333,6 @@ const MenuWrapper = styled.div`
   box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
   position: relative;
   z-index: 99;
-`;
-
-const MenuItem = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  &:hover {
-    background-color: darkgrey;
-  }
-  cursor: pointer;
-`;
-
-const MenuInnerText = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 70%;
-`;
-
-const ImageWrapper = styled.div`
-  margin: 10px;
 `;
 
 const IconsContainer = styled.div`

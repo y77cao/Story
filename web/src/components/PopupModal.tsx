@@ -5,6 +5,7 @@ import Image from "next/image";
 
 import { StyledButton, StyledContainer } from "../styles/globalStyles";
 import WindowHeader from "./WindowHeader";
+import { device } from "../constants";
 
 import error from "../../public/error.png";
 import warning from "../../public/warning.png";
@@ -118,6 +119,9 @@ const PopupModalWrapper = styled(StyledContainer)`
   align-items: center;
   justify-content: space-between;
   z-index: 999;
+  @media ${device.tablet} {
+    width: 100%;
+  }
 `;
 
 const ContentWrapper = styled.div`

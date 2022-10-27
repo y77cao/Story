@@ -129,7 +129,7 @@ const mapStateToProps = (state, ownProps) => ({
   ...ownProps
 });
 
-/** TODO: responsive, typing, get rid of ts-ignore, more audios, google analytics */
+/** TODO: typing, get rid of ts-ignore, google analytics */
 
 export default connect(mapStateToProps)(MintConfirmation);
 

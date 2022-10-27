@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import styled from "styled-components";
+
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import MintConfirmation from "./MintConfirmation";
 import { appError } from "../redux/appSlice";
@@ -9,6 +10,7 @@ import PopupModal, { modalState } from "./PopupModal";
 import { TextWithTooltip } from "./TextWithTooltip";
 import WindowHeader from "./WindowHeader";
 import { estimatedMintCost, validateText } from "../utils";
+import { device } from "../constants";
 
 const TextEditor = ({
   editable = true,
@@ -186,6 +188,10 @@ const TextEditorWrapper = styled(StyledContainer)`
   right: 0;
   margin: auto;
   align-items: center;
+  @media ${device.tablet} {
+    width: 100%;
+    height: 80%;
+  }
 `;
 
 const HeaderButton = styled(StyledButton)`

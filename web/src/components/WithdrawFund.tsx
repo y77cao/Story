@@ -10,11 +10,21 @@ import {
   clearTransaction
 } from "../redux/blockchainSlice";
 import { toEther } from "../utils";
+import { device } from "../constants";
+import { appError } from "../redux/appSlice";
 
-const WithdrawFund = ({ onClose, balance, transaction, loading }) => {
+const WithdrawFund = ({ onClose, balance, account, transaction, loading }) => {
   const dispatch = useDispatch();
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [tokenId, setTokenId] = useState(null);
+
+  const onClickWithdraw = () => {
+    if (!account)
+      return dispatch(
+        appError("Please connect your wallet in Start > Login to withdraw")
+      );
+    if (tokenId) setConfirmationVisible(true);
+  };
 
   return (
     <WithdrawFundWrapper>
@@ -39,13 +49,7 @@ const WithdrawFund = ({ onClose, balance, transaction, loading }) => {
           >
             Check Balance
           </ContentButton>
-          <ContentButton
-            onClick={() => {
-              if (tokenId) setConfirmationVisible(true);
-            }}
-          >
-            Withdraw Fund
-          </ContentButton>
+          <ContentButton onClick={onClickWithdraw}>Withdraw Fund</ContentButton>
         </ContentButtonWrapper>
       </ContentWrapper>
       {confirmationVisible ? (
@@ -69,7 +73,7 @@ const WithdrawFund = ({ onClose, balance, transaction, loading }) => {
           message={[
             "Success! Please check the transaction on ",
             <a
-              href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}`}
+              href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}tx/${transaction.hash}`}
               target="_blank"
             >
               Etherscan
@@ -94,6 +98,7 @@ const mapStateToProps = (state, ownProps) => ({
   balance: state.blockchain.tokenIdWithBalance.balance,
   transaction: state.blockchain.withdrawTransaction,
   loading: state.blockchain.loading,
+  account: state.blockchain.account,
   ...ownProps
 });
 
@@ -111,6 +116,10 @@ const WithdrawFundWrapper = styled(StyledContainer)`
   right: 0;
   margin: auto;
   align-items: center;
+  @media ${device.tablet} {
+    width: 100%;
+    height: 80%;
+  }
 `;
 
 const ContentWrapper = styled.div`
