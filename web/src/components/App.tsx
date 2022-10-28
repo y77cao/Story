@@ -198,7 +198,7 @@ function App() {
             <Image src={muteIcon}></Image>
           )}
         </div>
-        <a href="https://github.com/y77cao" target="_blank">
+        <a href="https://github.com/y77cao/Story" target="_blank">
           <Image src={githubIcon}></Image>
         </a>
         <a
