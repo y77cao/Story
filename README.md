@@ -1,15 +1,4 @@
-# Basic Sample Hardhat Project
+# Story
+Collaborative story writing on Ethereum.
+<img width="1051" alt="Screen Shot 2022-10-27 at 10 08 53 PM" src="https://user-images.githubusercontent.com/16827269/198459185-49779948-e73b-4cae-9d2b-34c886cab67a.png">
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
