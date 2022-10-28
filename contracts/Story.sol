@@ -25,8 +25,7 @@ error NonExistentToken();
 contract Story is ERC721, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
-    string _contractURI;
-    uint256 public constant pricePerChar = 0.0005 ether;
+    uint256 public constant pricePerChar = 0.00005 ether;
     uint256 public constant numberOfMintRequiredToStartStory = 7;
 
     struct TokenMetadata {
@@ -122,15 +121,6 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         if (!sent) revert WithdrawFailed();
     }
 
-    function setContractURI(string memory contractURI_) public onlyOwner {
-        _contractURI = string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(bytes(contractURI_))
-            )
-        );
-    }
-
     // ============ PUBLIC READ-ONLY FUNCTIONS ============
     function canMintWithTitle(uint256 nextTokenId) public view returns (bool) {
         // only owner can start this game :/
@@ -194,17 +184,13 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
             );
     }
 
-    function contractURI() public view returns (string memory) {
-        return _contractURI;
-    }
-
     function generateSvg(
         string memory text,
         address creator,
         bytes32 title
     ) public view returns (string memory) {
         bytes memory svg = abi.encodePacked(
-            '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><defs><filter id="glitch" x="0" y="0"><feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/><feOffset in="r" result="r" dx="1"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/><feOffset in="g" result="g"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/><feOffset in="b" result="b" dx="2"/><feBlend in="r" in2="g" mode="screen" result="blend"/><feBlend in="blend" in2="b" mode="screen" result="blend"/></filter></defs><path fill="#b38999" d="M0 0h700v700H0z"/>',
+            '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 400 400"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><defs><filter id="glitch" x="0" y="0"><feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/><feOffset in="r" result="r" dx="1"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/><feOffset in="g" result="g"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/><feOffset in="b" result="b" dx="2"/><feBlend in="r" in2="g" mode="screen" result="blend"/><feBlend in="blend" in2="b" mode="screen" result="blend"/></filter></defs><path fill="#b38999" d="M0 0h700v700H0z"/>',
             generateTextSvg(text, creator, title),
             "</svg>"
         );
