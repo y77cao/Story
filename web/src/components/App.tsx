@@ -3,20 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import styled from "styled-components";
 
-import {
-  updateAccountMetadata,
-  initSuccess,
-  fetchData,
-  connect
-} from "../redux/blockchainSlice";
+import { updateAccountMetadata, connect, init } from "../redux/blockchainSlice";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
 import PopupModal, { modalState } from "./PopupModal";
 import TextEditor from "./TextEditor";
-import { ContractClient } from "../clients/contractClient";
 import DesktopItem from "./DesktopItem";
 import MenuItem from "./MenuItem";
 import {
-  appError,
   clearAppError,
   closeWindow,
   openWindow,
@@ -47,27 +40,17 @@ function App() {
   const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
-    const initContract = async () => {
-      try {
-        // @ts-ignore checked in initContract
-        const { ethereum } = window;
-        const { provider, contract } = await ContractClient.initContract();
-        const contractClient = new ContractClient(provider, contract);
+    dispatch(init());
 
-        dispatch(initSuccess({ contractClient }));
-        dispatch(fetchData());
-        ethereum.on("accountsChanged", accounts => {
-          dispatch(updateAccountMetadata(accounts[0]));
-        });
-        ethereum.on("chainChanged", () => {
-          window.location.reload();
-        });
-      } catch (err) {
-        dispatch(appError(err.message));
-      }
-    };
-
-    initContract();
+    // @ts-ignore checked in init
+    const { ethereum } = window;
+    ethereum.on("accountsChanged", accounts =>
+      dispatch(updateAccountMetadata(accounts[0]))
+    );
+    ethereum.on("chainChanged", chainId => {
+      window.location.reload();
+      dispatch(init());
+    });
   }, []);
 
   const toggleMenu = () => {

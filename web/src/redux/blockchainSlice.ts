@@ -112,6 +112,17 @@ export const {
   updateAccountSuccess
 } = blockchainSlice.actions;
 
+export const init = () => async dispatch => {
+  try {
+    const { provider, contract } = await ContractClient.initContract();
+    const contractClient = new ContractClient(provider, contract);
+    dispatch(initSuccess({ contractClient }));
+    dispatch(fetchData());
+  } catch (err) {
+    dispatch(appError(err.message));
+  }
+};
+
 export const connect = () => async (dispatch, getState) => {
   dispatch(connectRequest());
   try {
