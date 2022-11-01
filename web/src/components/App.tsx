@@ -44,10 +44,10 @@ function App() {
 
     // @ts-ignore checked in init
     const { ethereum } = window;
-    ethereum.on("accountsChanged", accounts =>
+    ethereum?.on("accountsChanged", accounts =>
       dispatch(updateAccountMetadata(accounts[0]))
     );
-    ethereum.on("chainChanged", chainId => {
+    ethereum?.on("chainChanged", chainId => {
       window.location.reload();
       dispatch(init());
     });
