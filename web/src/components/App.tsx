@@ -185,7 +185,7 @@ function App() {
           <Image src={githubIcon}></Image>
         </a>
         <a
-          href="https://goerli.etherscan.io/address/0xc9fe9e9101da9ca8a7ae961671eaa85860e5e353"
+          href={`https://goerli.etherscan.io/address/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
           target="_blank"
         >
           <Image src={etherscanIcon}></Image>
