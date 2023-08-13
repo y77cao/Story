@@ -1,6 +1,8 @@
 const hre = require("hardhat");
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
@@ -9,8 +11,11 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
+  const ensReverseRegistrarAddress =
+    "0xa58e81fe9b61b5c3fe2afd33cf304c454abfc7cb"; // <-mainnet, goerli: 0x4f7A657451358a22dc397d5eE7981FfC526cd856
+
   const Story = await hre.ethers.getContractFactory("Story");
-  const story = await Story.deploy();
+  const story = await Story.deploy(ensReverseRegistrarAddress);
 
   await story.deployed();
 
@@ -19,7 +24,7 @@ async function main() {
 
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

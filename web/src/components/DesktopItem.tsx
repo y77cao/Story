@@ -28,7 +28,7 @@ const DesktopItem = ({ title, onClickItem, audioEnabled }) => {
 
 const mapStateToProps = (state, ownProps) => ({
   audioEnabled: state.app.audioEnabled,
-  ...ownProps
+  ...ownProps,
 });
 export default connect(mapStateToProps)(DesktopItem);
 

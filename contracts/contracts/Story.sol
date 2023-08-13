@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 //Contract based on [https://docs.openzeppelin.com/contracts/3.x/erc721](https://docs.openzeppelin.com/contracts/3.x/erc721)
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -26,7 +26,8 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
     uint256 public constant pricePerChar = 0.00005 ether;
-    uint256 public constant numberOfMintRequiredToStartStory = 7;
+    uint256 public constant numberOfMintRequiredToStartStory = 3;
+    address ensReverseRegistarAddress;
 
     struct TokenMetadata {
         address creator;
@@ -40,16 +41,24 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
 
     TokenMetadata[] mintedTokens;
 
-    constructor() ERC721("Story", "STORY") {}
+    constructor(address _ensReverseRegistarAddress) ERC721("Story", "STORY") {
+        ensReverseRegistarAddress = _ensReverseRegistarAddress;
+    }
+
+    // ============ ADMIN FUNCTIONS ============
+
+    function setEnsReverseRegistarAddress(
+        address _ensReverseRegistarAddress
+    ) external onlyOwner {
+        ensReverseRegistarAddress = _ensReverseRegistarAddress;
+    }
 
     // ============ PUBLIC FUNCTIONS ============
 
-    function mint(string memory text, uint256 parentId)
-        external
-        payable
-        nonReentrant
-        returns (uint256)
-    {
+    function mint(
+        string memory text,
+        uint256 parentId
+    ) external payable nonReentrant returns (uint256) {
         uint256 textCharCount = StoryStringUtils.strlen(text);
         if (!_exists(parentId)) revert NonExistentToken();
         if (!StoryStringUtils.validate(text)) revert InvalidText();
@@ -75,12 +84,10 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return nextId;
     }
 
-    function mintWithTitle(bytes32 title, string memory text)
-        external
-        payable
-        nonReentrant
-        returns (uint256)
-    {
+    function mintWithTitle(
+        bytes32 title,
+        string memory text
+    ) external payable nonReentrant returns (uint256) {
         uint256 textCharCount = StoryStringUtils.strlen(text);
         if (!StoryStringUtils.validate(StoryStringUtils.bytes32ToString(title)))
             revert InvalidText();
@@ -132,11 +139,9 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return true;
     }
 
-    function getMintPrice(uint256 numberOfChars)
-        external
-        pure
-        returns (uint256)
-    {
+    function getMintPrice(
+        uint256 numberOfChars
+    ) external pure returns (uint256) {
         return numberOfChars * pricePerChar;
     }
 
@@ -155,12 +160,9 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return mintedTokens;
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
         if (!_exists(tokenId)) revert NonExistentToken();
         TokenMetadata memory metadata = mintedTokens[tokenId];
         bytes32 title = mintedTokens[metadata.parentTokenId].title;
@@ -190,7 +192,7 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         bytes32 title
     ) public view returns (string memory) {
         bytes memory svg = abi.encodePacked(
-            '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 400 400"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><defs><filter id="glitch" x="0" y="0"><feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/><feOffset in="r" result="r" dx="1"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/><feOffset in="g" result="g"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/><feOffset in="b" result="b" dx="2"/><feBlend in="r" in2="g" mode="screen" result="blend"/><feBlend in="blend" in2="b" mode="screen" result="blend"/></filter></defs><path fill="#b38999" d="M0 0h700v700H0z"/>',
+            '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 400 400"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><defs><filter id="glitch" x="0" y="0"><feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="r"/><feOffset in="r" result="r" dx="1"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="g"/><feOffset in="g" result="g"/><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="b"/><feOffset in="b" result="b" dx="2"/><feBlend in="r" in2="g" mode="screen" result="blend"/><feBlend in="blend" in2="b" mode="screen" result="blend"/></filter></defs><path fill="#0052ff" d="M0 0h700v700H0z"/>',
             generateTextSvg(text, creator, title),
             "</svg>"
         );
@@ -246,12 +248,13 @@ contract Story is ERC721, Ownable, ReentrancyGuard {
         return string(svg);
     }
 
-    function getAuthor(address ownerAddress)
-        internal
-        view
-        returns (string memory)
-    {
-        string memory authorEns = ENSNameResolver.lookupENSName(ownerAddress);
+    function getAuthor(
+        address ownerAddress
+    ) internal view returns (string memory) {
+        string memory authorEns = ENSNameResolver.lookupENSName(
+            ensReverseRegistarAddress,
+            ownerAddress
+        );
         return
             bytes(authorEns).length > 0
                 ? authorEns

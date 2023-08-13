@@ -15,7 +15,7 @@ const initialState = {
   tokenIdWithBalance: {},
   numberOfOwnedTokens: null,
   canMintWithTitle: false,
-  svgString: ""
+  svgString: "",
 };
 
 export const blockchainSlice = createSlice({
@@ -25,7 +25,7 @@ export const blockchainSlice = createSlice({
     initSuccess: (state, action) => {
       state.contractClient = action.payload.contractClient;
     },
-    connectRequest: state => {
+    connectRequest: (state) => {
       state.loading = true;
     },
     connectSuccess: (state, action) => {
@@ -34,7 +34,7 @@ export const blockchainSlice = createSlice({
       state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
       state.canMintWithTitle = action.payload.canMintWithTitle;
     },
-    fetchDataRequest: state => {
+    fetchDataRequest: (state) => {
       state.loading = true;
     },
     fetchDataSuccess: (state, action) => {
@@ -44,14 +44,14 @@ export const blockchainSlice = createSlice({
       state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
       state.canMintWithTitle = action.payload.canMintWithTitle;
     },
-    checkBalanceRequest: state => {
+    checkBalanceRequest: (state) => {
       state.loading = true;
     },
     checkBalanceSuccess: (state, action) => {
       state.loading = false;
       state.tokenIdWithBalance = action.payload;
     },
-    withdrawFundRequest: state => {
+    withdrawFundRequest: (state) => {
       state.loading = true;
     },
     withdrawFundSuccess: (state, action) => {
@@ -60,36 +60,36 @@ export const blockchainSlice = createSlice({
       state.tokenIdWithBalance.balance = BigNumber.from(0);
       state.withdrawTransaction = action.payload.transaction;
     },
-    previewMintRequest: state => {
+    previewMintRequest: (state) => {
       state.loading = true;
     },
     previewMintSuccess: (state, action) => {
       state.loading = false;
       state.svgString = action.payload.svgString;
     },
-    mintRequest: state => {
+    mintRequest: (state) => {
       state.loading = true;
     },
     mintSuccess: (state, action) => {
       state.loading = false;
       state.mintTransaction = action.payload.transaction;
     },
-    clearTransaction: state => {
+    clearTransaction: (state) => {
       state.mintTransaction = null;
       state.withdrawTransaction = null;
     },
-    error: state => {
+    error: (state) => {
       state.loading = false;
     },
-    updateAccountRequest: state => {
+    updateAccountRequest: (state) => {
       state.loading = true;
     },
     updateAccountSuccess: (state, action) => {
       state.account = action.payload.account;
       state.numberOfOwnedTokens = action.payload.numberOfOwnedTokens;
       state.canMintWithTitle = action.payload.canMintWithTitle;
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -109,16 +109,17 @@ export const {
   error,
   clearTransaction,
   updateAccountRequest,
-  updateAccountSuccess
+  updateAccountSuccess,
 } = blockchainSlice.actions;
 
-export const init = () => async dispatch => {
+export const init = () => async (dispatch) => {
   try {
     const { provider, contract } = await ContractClient.initContract();
     const contractClient = new ContractClient(provider, contract);
     dispatch(initSuccess({ contractClient }));
     dispatch(fetchData());
   } catch (err) {
+    console.log(err);
     dispatch(appError(err.message));
   }
 };
@@ -146,27 +147,28 @@ export const connect = () => async (dispatch, getState) => {
   }
 };
 
-export const updateAccountMetadata = account => async (dispatch, getState) => {
-  dispatch(updateAccountRequest());
-  try {
-    const state = getState();
-    const { contractClient, stories } = state.blockchain;
-    const numberOfOwnedTokens = (
-      await contractClient.getNumberOfOwnedTokens(account)
-    ).toNumber();
-    const nextTokenId = Object.values(stories).flat().length;
-    const canMintWithTitle = await contractClient.canMintWithTitle(
-      BigNumber.from(nextTokenId),
-      account
-    );
-    dispatch(
-      updateAccountSuccess({ account, numberOfOwnedTokens, canMintWithTitle })
-    );
-  } catch (err) {
-    dispatch(error());
-    dispatch(appError(err.message));
-  }
-};
+export const updateAccountMetadata =
+  (account) => async (dispatch, getState) => {
+    dispatch(updateAccountRequest());
+    try {
+      const state = getState();
+      const { contractClient, stories } = state.blockchain;
+      const numberOfOwnedTokens = (
+        await contractClient.getNumberOfOwnedTokens(account)
+      ).toNumber();
+      const nextTokenId = Object.values(stories).flat().length;
+      const canMintWithTitle = await contractClient.canMintWithTitle(
+        BigNumber.from(nextTokenId),
+        account
+      );
+      dispatch(
+        updateAccountSuccess({ account, numberOfOwnedTokens, canMintWithTitle })
+      );
+    } catch (err) {
+      dispatch(error());
+      dispatch(appError(err.message));
+    }
+  };
 
 export const mint =
   (text: string, parentId: number) => async (dispatch, getState) => {
@@ -177,7 +179,7 @@ export const mint =
       const txn = await contractClient.mint(text, parentId);
       dispatch(
         mintSuccess({
-          transaction: txn
+          transaction: txn,
         })
       );
     } catch (err) {
@@ -195,7 +197,7 @@ export const mintWithTitle =
       const txn = await contractClient.mintWithTitle(title, text);
       dispatch(
         mintSuccess({
-          transaction: txn
+          transaction: txn,
         })
       );
     } catch (err) {
@@ -209,7 +211,9 @@ export const fetchData = () => async (dispatch, getState) => {
   try {
     const state = getState();
     const { contractClient, account } = state.blockchain;
+    console.log("fetching data");
     const pricePerChar = await contractClient.getPricePerChar();
+    console.log("pricePerChar");
     const tokens = await contractClient.getAllTokens();
     const canMintWithTitle = account
       ? await contractClient.canMintWithTitle(
@@ -226,16 +230,17 @@ export const fetchData = () => async (dispatch, getState) => {
         stories,
         pricePerChar,
         numberOfOwnedTokens,
-        canMintWithTitle
+        canMintWithTitle,
       })
     );
   } catch (err) {
+    console.log(err);
     dispatch(error());
     dispatch(appError(err.message));
   }
 };
 
-export const checkBalance = tokenId => async (dispatch, getState) => {
+export const checkBalance = (tokenId) => async (dispatch, getState) => {
   dispatch(checkBalanceRequest());
   try {
     const state = getState();
@@ -257,7 +262,7 @@ export const withdrawFund =
       const txn = await contractClient.withdraw(tokenId, balance);
       dispatch(
         withdrawFundSuccess({
-          transaction: txn
+          transaction: txn,
         })
       );
     } catch (err) {
@@ -275,7 +280,7 @@ export const previewMint =
       const svgString = await contractClient.generateSvg(text, creator, title);
       dispatch(
         previewMintSuccess({
-          svgString
+          svgString,
         })
       );
     } catch (err) {

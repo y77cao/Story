@@ -1,11 +1,9 @@
 import { ethers, BigNumber } from "ethers";
 import Story from "../abi/Story.json";
 
-// @ts-ignore
 export class ContractClient {
-  // TODO types
-  provider;
-  contract;
+  provider: ethers.providers.Web3Provider;
+  contract: ethers.Contract;
   constructor(provider, contract) {
     this.provider = provider;
     this.contract = contract;
@@ -17,7 +15,7 @@ export class ContractClient {
     const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
     if (!metamaskIsInstalled) throw new Error("Please install Metamask");
     const networkId = await ethereum.request({
-      method: "net_version"
+      method: "net_version",
     });
     if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
       const networkStr =
@@ -30,6 +28,11 @@ export class ContractClient {
     }
 
     const provider = new ethers.providers.Web3Provider(ethereum);
+    console.log({
+      contractAddress: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+      provider,
+      Story,
+    });
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
       Story.abi,
@@ -44,7 +47,7 @@ export class ContractClient {
     const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
     if (!metamaskIsInstalled) throw new Error("Please install Metamask");
     const networkId = await ethereum.request({
-      method: "net_version"
+      method: "net_version",
     });
     if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
       const networkStr =
@@ -57,7 +60,7 @@ export class ContractClient {
     }
 
     const accounts = await ethereum.request({
-      method: "eth_requestAccounts"
+      method: "eth_requestAccounts",
     });
 
     return accounts[0];
@@ -68,6 +71,7 @@ export class ContractClient {
   }
 
   async getPricePerChar(): Promise<BigNumber> {
+    console.log({ contract: this.contract.pricePerChar() });
     return this.contract.pricePerChar();
   }
 
@@ -112,7 +116,7 @@ export class ContractClient {
     const pricePerChar = await this.getPricePerChar();
     const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
     const txn = await contractWithSigner.mint(text, parentId, {
-      value: mintCost
+      value: mintCost,
     });
     await txn.wait();
     return txn;
@@ -132,7 +136,7 @@ export class ContractClient {
     const mintCost = pricePerChar.mul(ethers.BigNumber.from(text.length));
     const titleBytes = ethers.utils.formatBytes32String(title);
     const txn = await contractWithSigner.mintWithTitle(titleBytes, text, {
-      value: mintCost
+      value: mintCost,
     });
     await txn.wait();
     return txn;

@@ -14,7 +14,7 @@ import {
   closeWindow,
   openWindow,
   switchWindow,
-  toggleAudio
+  toggleAudio,
 } from "../redux/appSlice";
 import WithdrawFund from "./WithdrawFund";
 import { FAQ } from "./FAQ";
@@ -28,15 +28,15 @@ import muteIcon from "../../public/mute.png";
 export enum WindowType {
   STORY,
   WITHDRAW_FUND,
-  FAQ
+  FAQ,
 }
 
 function App() {
   const dispatch = useDispatch();
   // @ts-ignore
-  const blockchain = useSelector(state => state.blockchain);
+  const blockchain = useSelector((state) => state.blockchain);
   // @ts-ignore
-  const app = useSelector(state => state.app);
+  const app = useSelector((state) => state.app);
   const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
@@ -44,10 +44,10 @@ function App() {
 
     // @ts-ignore checked in init
     const { ethereum } = window;
-    ethereum?.on("accountsChanged", accounts =>
+    ethereum?.on("accountsChanged", (accounts) =>
       dispatch(updateAccountMetadata(accounts[0]))
     );
-    ethereum?.on("chainChanged", chainId => {
+    ethereum?.on("chainChanged", (chainId) => {
       window.location.reload();
       dispatch(init());
     });
@@ -72,9 +72,9 @@ function App() {
                   name: `${tokens[0].title}.txt`,
                   metadata: {
                     title: tokens[0].title,
-                    parentId
-                  }
-                }
+                    parentId,
+                  },
+                },
               })
             );
           }}
@@ -99,9 +99,9 @@ function App() {
                     type: WindowType.STORY,
                     metadata: {
                       title: "untitled.txt",
-                      parentId: -1
-                    }
-                  }
+                      parentId: -1,
+                    },
+                  },
                 })
               );
               toggleMenu();
@@ -117,8 +117,8 @@ function App() {
                   id: "withdraw-fund",
                   name: "Check Balance / Withdraw Fund",
                   type: WindowType.WITHDRAW_FUND,
-                  metadata: {}
-                }
+                  metadata: {},
+                },
               })
             );
             toggleMenu();
@@ -136,11 +136,11 @@ function App() {
   };
 
   const renderWindows = () => {
-    return app.windows.map(window => {
+    return app.windows.map((window) => {
       switch (window.type) {
         case WindowType.STORY:
           const {
-            metadata: { title, parentId }
+            metadata: { title, parentId },
           } = window;
           return (
             <TextEditor
@@ -190,7 +190,7 @@ function App() {
         >
           <Image src={etherscanIcon}></Image>
         </a>
-        <a href="https://twitter.com/0xdcmini" target="_blank">
+        <a href="https://twitter.com/y77cao" target="_blank">
           <Image src={twitterIcon}></Image>
         </a>
       </IconsContainer>
@@ -198,7 +198,7 @@ function App() {
   };
 
   const renderTabs = () => {
-    return app.tabs.map(tab => (
+    return app.tabs.map((tab) => (
       <Tab
         id={tab.id}
         onClick={() => dispatch(switchWindow({ windowId: tab.id }))}
@@ -222,8 +222,8 @@ function App() {
                     id: "faq",
                     name: "FAQ.txt",
                     type: WindowType.FAQ,
-                    metadata: {}
-                  }
+                    metadata: {},
+                  },
                 })
               );
             }}
@@ -288,16 +288,13 @@ const DesktopItemList = styled.div`
 `;
 
 const DesktopContainer = styled.div`
-  background-color: pink;
+  background-color: #0052ff;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: left;
   width: 100%;
   height: 100%;
-  background-image: url("/story-desktop.jpeg");
-  background-repeat: no-repeat;
-  background-size: cover;
 `;
 
 const DesktopInnerContainer = styled.div`

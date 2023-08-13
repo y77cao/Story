@@ -21,9 +21,17 @@ export const FAQ = ({ id, onClose }) => {
           Story is a{" "}
           <span style={{ textDecoration: "line-through" }}>ponzi</span>{" "}
           collaborative writing project on Ethereum. Anyone can decide how the
-          story proceeds by writing more to it. Each text snippet you chose to
-          add to the story will be minted as an NFT. All mint cost will be
+          story proceeds by writing more to it. Each text snippet you chose
+          wrote to the story will be minted as an NFT. All mint cost will be
           rewarded to all previous writers.
+        </div>
+        <div>
+          <strong>How does it work?</strong>
+        </div>
+        <div>
+          Click on Start &gt; Login to connect your wallet. Choose a story that
+          you'd like to keep writing and start typing. Once ready, click on the
+          save button on the top right to mint.
         </div>
         <div>
           <strong>How much does it cost?</strong>
@@ -34,8 +42,7 @@ export const FAQ = ({ id, onClose }) => {
         </div>
         <div>
           Definitely. But you need to practice some writing in the existing
-          stories first. You can check how much you need to write in the smart
-          contract:p
+          stories by writing at least 3 snippets first.
         </div>
         <div>
           <strong>How are the rewards distributed?</strong>
@@ -50,8 +57,8 @@ export const FAQ = ({ id, onClose }) => {
           <strong>Who’s the creator?</strong>
         </div>
         <div>
-          <a href="https://twitter.com/0xdcmini" target="_blank">
-            dcmini
+          <a href="https://twitter.com/y77cao" target="_blank">
+            y77cao
           </a>{" "}
           it is! Say hi:)
         </div>

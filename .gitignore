@@ -7,8 +7,8 @@ coverage.json
 typechain
 
 #Hardhat files
-cache
-artifacts
+*/**/cache
+*/**/artifacts
 
 # web
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
