@@ -211,9 +211,7 @@ export const fetchData = () => async (dispatch, getState) => {
   try {
     const state = getState();
     const { contractClient, account } = state.blockchain;
-    console.log("fetching data");
     const pricePerChar = await contractClient.getPricePerChar();
-    console.log("pricePerChar");
     const tokens = await contractClient.getAllTokens();
     const canMintWithTitle = account
       ? await contractClient.canMintWithTitle(

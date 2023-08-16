@@ -19,20 +19,16 @@ export class ContractClient {
     });
     if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
       const networkStr =
-        process.env.NEXT_PUBLIC_NETWORK_ID === "1"
-          ? "Ethereum mainnet"
-          : "Goerli testnet";
+        process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+          ? "Base mainnet"
+          : "Base Goerli";
       throw new Error(
         `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
     }
 
     const provider = new ethers.providers.Web3Provider(ethereum);
-    console.log({
-      contractAddress: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-      provider,
-      Story,
-    });
+
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
       Story.abi,
@@ -51,9 +47,9 @@ export class ContractClient {
     });
     if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
       const networkStr =
-        process.env.NEXT_PUBLIC_NETWORK_ID === "1"
-          ? "Ethereum mainnet"
-          : "Goerli testnet";
+        process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+          ? "Base mainnet"
+          : "Base Goerli";
       throw new Error(
         `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
@@ -71,7 +67,6 @@ export class ContractClient {
   }
 
   async getPricePerChar(): Promise<BigNumber> {
-    console.log({ contract: this.contract.pricePerChar() });
     return this.contract.pricePerChar();
   }
 
