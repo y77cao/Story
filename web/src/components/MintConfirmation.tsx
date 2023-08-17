@@ -6,7 +6,7 @@ import {
   mint,
   mintWithTitle,
   clearTransaction,
-  fetchData
+  fetchData,
 } from "../redux/blockchainSlice";
 import styled from "styled-components";
 import { StyledContainer, StyledButton } from "../styles/globalStyles";
@@ -25,7 +25,7 @@ const MintConfirmation = ({
   transaction,
   svgString,
   onCloseMintConfirmation,
-  setSaved
+  setSaved,
 }) => {
   const dispatch = useDispatch();
   const [newTitle, setNewTitle] = useState("");
@@ -67,7 +67,7 @@ const MintConfirmation = ({
               style={{
                 backgroundImage: `url("${svgString}")`,
                 width: "350px",
-                height: "350px"
+                height: "350px",
               }}
             ></div>
           )}
@@ -75,12 +75,12 @@ const MintConfirmation = ({
         {parentId === -1 ? (
           <div>
             New story title:{" "}
-            <input onChange={e => setNewTitle(e.target.value)}></input>
+            <input onChange={(e) => setNewTitle(e.target.value)}></input>
           </div>
         ) : null}
         <Text>
-          Saving this snippet will mint an ERC721 token on Ethereum with all
-          data on-chain. The mint cost will be{" "}
+          Saving this snippet will mint an ERC721 token on Base with all data
+          on-chain. The mint cost will be{" "}
           {estimatedMintCost(text.length, pricePerChar)} ether plus gas. Are you
           sure you want to proceed?
         </Text>
@@ -104,13 +104,13 @@ const MintConfirmation = ({
               href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}tx/${transaction.hash}`}
               target="_blank"
             >
-              Etherscan
+              Transaction Explorer
             </a>,
             " and verify your token on ",
             <a href="https://testnets.opensea.io/account" target="_blank">
               Opensea
             </a>,
-            "."
+            ".",
           ]}
           onClose={onMintSuccess}
           onOk={onMintSuccess}
@@ -126,7 +126,7 @@ const mapStateToProps = (state, ownProps) => ({
   loading: state.blockchain.loading,
   transaction: state.blockchain.mintTransaction,
   svgString: state.blockchain.svgString,
-  ...ownProps
+  ...ownProps,
 });
 
 /** TODO: typing, get rid of ts-ignore, google analytics */

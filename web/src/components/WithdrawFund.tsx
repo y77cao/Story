@@ -7,7 +7,7 @@ import { StyledButton, StyledContainer } from "../styles/globalStyles";
 import {
   checkBalance,
   withdrawFund,
-  clearTransaction
+  clearTransaction,
 } from "../redux/blockchainSlice";
 import { toEther } from "../utils";
 import { device } from "../constants";
@@ -37,7 +37,7 @@ const WithdrawFund = ({ onClose, balance, account, transaction, loading }) => {
           <div>Token Id:</div>
           <input
             type={"number"}
-            onChange={e => setTokenId(e.target.value)}
+            onChange={(e) => setTokenId(e.target.value)}
           ></input>
           {balance && <div>Balance: {toEther(balance)} ether</div>}
         </Content>
@@ -76,9 +76,9 @@ const WithdrawFund = ({ onClose, balance, account, transaction, loading }) => {
               href={`${process.env.NEXT_PUBLIC_ETHERSCAN_URL}tx/${transaction.hash}`}
               target="_blank"
             >
-              Etherscan
+              Transaction Explorer
             </a>,
-            "."
+            ".",
           ]}
           onClose={() => {
             dispatch(clearTransaction());
@@ -99,7 +99,7 @@ const mapStateToProps = (state, ownProps) => ({
   transaction: state.blockchain.withdrawTransaction,
   loading: state.blockchain.loading,
   account: state.blockchain.account,
-  ...ownProps
+  ...ownProps,
 });
 
 export default connect(mapStateToProps)(WithdrawFund);
