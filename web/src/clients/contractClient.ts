@@ -17,30 +17,39 @@ export class ContractClient {
 
     let provider;
     if (ethereum.isMetaMask) {
+      const networkId = await ethereum.request({
+        method: "net_version",
+      });
+      if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+        const networkStr =
+          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+            ? "Base mainnet"
+            : "Base Goerli";
+        throw new Error(
+          `Unsupported network. Please make sure that your are on ${networkStr}.`
+        );
+      }
       provider = new ethers.providers.Web3Provider(ethereum);
     } else if (ethereum.isCoinbaseWallet) {
       const coinbaseWallet = new CoinbaseWalletSDK({ appName: "StoryBase" });
-      ethereum = coinbaseWallet.makeWeb3Provider(
-        process.env.NEXT_PUBLIC_BASE_RPC_URL,
-        84531
-      );
+      ethereum = coinbaseWallet.makeWeb3Provider();
       provider = new ethers.providers.Web3Provider(ethereum);
+
+      const networkId = await ethereum.request({
+        method: "net_version",
+      });
+      if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+        const networkStr =
+          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+            ? "Base mainnet"
+            : "Base Goerli";
+        throw new Error(
+          `Unsupported network. Please make sure that your are on ${networkStr}.`
+        );
+      }
     } else {
       throw new Error(
         "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
-      );
-    }
-
-    const networkId = await ethereum.request({
-      method: "net_version",
-    });
-    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
-      const networkStr =
-        process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
-          ? "Base mainnet"
-          : "Base Goerli";
-      throw new Error(
-        `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
     }
 
@@ -57,30 +66,39 @@ export class ContractClient {
     let { ethereum } = window;
     let provider;
     if (ethereum.isMetaMask) {
+      const networkId = await ethereum.request({
+        method: "net_version",
+      });
+      if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+        const networkStr =
+          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+            ? "Base mainnet"
+            : "Base Goerli";
+        throw new Error(
+          `Unsupported network. Please make sure that your are on ${networkStr}.`
+        );
+      }
       provider = new ethers.providers.Web3Provider(ethereum);
     } else if (ethereum.isCoinbaseWallet) {
       const coinbaseWallet = new CoinbaseWalletSDK({ appName: "StoryBase" });
-      ethereum = coinbaseWallet.makeWeb3Provider(
-        process.env.NEXT_PUBLIC_BASE_RPC_URL,
-        84531
-      );
+      ethereum = coinbaseWallet.makeWeb3Provider();
       provider = new ethers.providers.Web3Provider(ethereum);
+
+      const networkId = await ethereum.request({
+        method: "net_version",
+      });
+      if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+        const networkStr =
+          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+            ? "Base mainnet"
+            : "Base Goerli";
+        throw new Error(
+          `Unsupported network. Please make sure that your are on ${networkStr}.`
+        );
+      }
     } else {
       throw new Error(
         "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
-      );
-    }
-
-    const networkId = await ethereum.request({
-      method: "net_version",
-    });
-    if (networkId !== process.env.NEXT_PUBLIC_NETWORK_ID) {
-      const networkStr =
-        process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
-          ? "Base mainnet"
-          : "Base Goerli";
-      throw new Error(
-        `Unsupported network. Please make sure that your are on ${networkStr}.`
       );
     }
 
