@@ -51,7 +51,7 @@ export class ContractClient {
       provider
     );
 
-    return { provider, contract, account: accounts[0] };
+    return { provider, contract, account: accounts ? accounts[0] : null };
   }
   static async connectWallet() {
     // @ts-ignore checked below
