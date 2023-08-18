@@ -117,6 +117,20 @@ export const init = () => async (dispatch) => {
     const { provider, contract } = await ContractClient.initContract();
     const contractClient = new ContractClient(provider, contract);
     dispatch(initSuccess({ contractClient }));
+
+    const networkId = await window.ethereum?.request({
+      method: "eth_chainId",
+    });
+    if (parseInt(networkId).toString() !== process.env.NEXT_PUBLIC_NETWORK_ID) {
+      const networkStr =
+        process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
+          ? "Base mainnet"
+          : "Base Goerli";
+      throw new Error(
+        `Unsupported network. Please make sure that your are on ${networkStr}.`
+      );
+    }
+
     dispatch(fetchData());
   } catch (err) {
     dispatch(appError(err.message));

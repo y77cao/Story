@@ -16,6 +16,7 @@ export class ContractClient {
     if (!ethereum) throw new Error("No wallet detected");
 
     let provider;
+    let accounts = null;
     if (ethereum.isMetaMask) {
       const networkId = await ethereum.request({
         method: "net_version",
@@ -35,20 +36,9 @@ export class ContractClient {
       ethereum = coinbaseWallet.makeWeb3Provider();
       provider = new ethers.providers.Web3Provider(ethereum);
 
-      const networkId = await ethereum.request({
-        method: "eth_chainId",
+      accounts = await ethereum.request({
+        method: "eth_requestAccounts",
       });
-      if (
-        parseInt(networkId).toString() !== process.env.NEXT_PUBLIC_NETWORK_ID
-      ) {
-        const networkStr =
-          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
-            ? "Base mainnet"
-            : "Base Goerli";
-        throw new Error(
-          `Unsupported network. Please make sure that your are on ${networkStr}.`
-        );
-      }
     } else {
       throw new Error(
         "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
@@ -61,7 +51,7 @@ export class ContractClient {
       provider
     );
 
-    return { provider, contract };
+    return { provider, contract, account: accounts[0] };
   }
   static async connectWallet() {
     // @ts-ignore checked below
@@ -85,21 +75,6 @@ export class ContractClient {
       const coinbaseWallet = new CoinbaseWalletSDK({ appName: "StoryBase" });
       ethereum = coinbaseWallet.makeWeb3Provider();
       provider = new ethers.providers.Web3Provider(ethereum);
-
-      const networkId = await ethereum.request({
-        method: "eth_chainId",
-      });
-      if (
-        parseInt(networkId).toString() !== process.env.NEXT_PUBLIC_NETWORK_ID
-      ) {
-        const networkStr =
-          process.env.NEXT_PUBLIC_NETWORK_ID === "8453"
-            ? "Base mainnet"
-            : "Base Goerli";
-        throw new Error(
-          `Unsupported network. Please make sure that your are on ${networkStr}.`
-        );
-      }
     } else {
       throw new Error(
         "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
