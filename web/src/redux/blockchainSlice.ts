@@ -119,7 +119,6 @@ export const init = () => async (dispatch) => {
     dispatch(initSuccess({ contractClient }));
     dispatch(fetchData());
   } catch (err) {
-    console.log(err);
     dispatch(appError(err.message));
   }
 };
@@ -232,7 +231,6 @@ export const fetchData = () => async (dispatch, getState) => {
       })
     );
   } catch (err) {
-    console.log(err);
     dispatch(error());
     dispatch(appError(err.message));
   }

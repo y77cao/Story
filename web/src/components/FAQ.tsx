@@ -20,10 +20,10 @@ export const FAQ = ({ id, onClose }) => {
         <div>
           Story is a{" "}
           <span style={{ textDecoration: "line-through" }}>ponzi</span>{" "}
-          collaborative writing project on Ethereum. Anyone can decide how the
-          story proceeds by writing more to it. Each text snippet you chose
-          wrote to the story will be minted as an NFT. All mint cost will be
-          rewarded to all previous writers.
+          collaborative writing project on Base. Anyone can decide how the story
+          proceeds by writing more to it. Each text snippet you chose wrote to
+          the story will be minted as an NFT. All mint cost will be rewarded to
+          all previous writers.
         </div>
         <div>
           <strong>How does it work?</strong>

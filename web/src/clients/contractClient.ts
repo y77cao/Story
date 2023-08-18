@@ -1,4 +1,5 @@
 import { ethers, BigNumber } from "ethers";
+import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 import Story from "../abi/Story.json";
 
 export class ContractClient {
@@ -11,9 +12,25 @@ export class ContractClient {
 
   static async initContract() {
     // @ts-ignore checked below
-    const { ethereum } = window;
-    const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
-    if (!metamaskIsInstalled) throw new Error("Please install Metamask");
+    let { ethereum } = window;
+    if (!ethereum) throw new Error("No wallet detected");
+
+    let provider;
+    if (ethereum.isMetaMask) {
+      provider = new ethers.providers.Web3Provider(ethereum);
+    } else if (ethereum.isCoinbaseWallet) {
+      const coinbaseWallet = new CoinbaseWalletSDK({ appName: "StoryBase" });
+      ethereum = coinbaseWallet.makeWeb3Provider(
+        process.env.NEXT_PUBLIC_BASE_RPC_URL,
+        84531
+      );
+      provider = new ethers.providers.Web3Provider(ethereum);
+    } else {
+      throw new Error(
+        "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
+      );
+    }
+
     const networkId = await ethereum.request({
       method: "net_version",
     });
@@ -27,8 +44,6 @@ export class ContractClient {
       );
     }
 
-    const provider = new ethers.providers.Web3Provider(ethereum);
-
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
       Story.abi,
@@ -39,9 +54,23 @@ export class ContractClient {
   }
   static async connectWallet() {
     // @ts-ignore checked below
-    const { ethereum } = window;
-    const metamaskIsInstalled = ethereum && ethereum.isMetaMask;
-    if (!metamaskIsInstalled) throw new Error("Please install Metamask");
+    let { ethereum } = window;
+    let provider;
+    if (ethereum.isMetaMask) {
+      provider = new ethers.providers.Web3Provider(ethereum);
+    } else if (ethereum.isCoinbaseWallet) {
+      const coinbaseWallet = new CoinbaseWalletSDK({ appName: "StoryBase" });
+      ethereum = coinbaseWallet.makeWeb3Provider(
+        process.env.NEXT_PUBLIC_BASE_RPC_URL,
+        84531
+      );
+      provider = new ethers.providers.Web3Provider(ethereum);
+    } else {
+      throw new Error(
+        "No supported wallet detected. Please connect with Metamask or Coinbase Wallet"
+      );
+    }
+
     const networkId = await ethereum.request({
       method: "net_version",
     });
