@@ -107,7 +107,7 @@ const MintConfirmation = ({
               Transaction Explorer
             </a>,
             " and verify your token on ",
-            <a href="https://testnets.opensea.io/account" target="_blank">
+            <a href={`https://${process.env.NODE_ENV === 'production' ? '' : 'testnets.'}opensea.io/account`} target="_blank">
               Opensea
             </a>,
             ".",
