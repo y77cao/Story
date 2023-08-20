@@ -273,6 +273,7 @@ const BottomWrapper = styled.div`
   width: 100%;
   height: auto;
   margin-top: auto;
+  position: relative;
 `;
 
 const BarWrapper = styled(StyledContainer)`
@@ -282,9 +283,12 @@ const BarWrapper = styled(StyledContainer)`
 `;
 
 const DesktopItemList = styled.div`
+  height: 90%;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   align-items: flex-start;
+  overflow: scroll;
 `;
 
 const DesktopContainer = styled.div`
@@ -299,6 +303,7 @@ const DesktopContainer = styled.div`
 
 const DesktopInnerContainer = styled.div`
   flex-grow: 1;
+  height: 90%;
 `;
 
 const MenuWrapper = styled.div`
@@ -311,7 +316,8 @@ const MenuWrapper = styled.div`
   border-right: 1px solid gray;
   border-bottom: 1px solid gray;
   box-shadow: inset 1px 1px #dfdfdf, 1px 0 #000, 0 1px #000, 1px 1px #000;
-  position: relative;
+  position: absolute;
+  bottom: 101%;
   z-index: 99;
 `;
 
